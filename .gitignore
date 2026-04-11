@@ -1,5 +1,47 @@
-.venv
-
-node_modules
-
 .DS_Store
+
+# Environments
+.venv/
+venv/
+env/
+
+# Python cache/build/test artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# JS
+node_modules/
+
+# Local editor/system files
+.env
+.env.*
+
+# Elephant separator data and generated outputs
+elephant-seperator/data/recordings/*
+!elephant-seperator/data/recordings/.gitkeep
+elephant-seperator/data/clean_samples/*
+!elephant-seperator/data/clean_samples/.gitkeep
+elephant-seperator/data/noise_samples/*
+!elephant-seperator/data/noise_samples/.gitkeep
+elephant-seperator/models/saved_models/*
+!elephant-seperator/models/saved_models/.gitkeep
+elephant-seperator/models/nmf_components/*
+!elephant-seperator/models/nmf_components/.gitkeep
+elephant-seperator/results/separated_calls/*
+!elephant-seperator/results/separated_calls/.gitkeep
+elephant-seperator/results/spectrograms/*
+!elephant-seperator/results/spectrograms/.gitkeep
