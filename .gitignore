@@ -33,8 +33,6 @@ node_modules/
 # Elephant separator data and generated outputs
 elephant-separator/data/recordings/*
 !elephant-separator/data/recordings/.gitkeep
-elephant-separator/data/clean_samples/*
-!elephant-separator/data/clean_samples/.gitkeep
 elephant-separator/data/noise_samples/*
 !elephant-separator/data/noise_samples/.gitkeep
 elephant-separator/models/saved_models/*
@@ -48,3 +46,4 @@ elephant-separator/results/spectrograms/*
 
 .obsidian/
 downloaded_data/
+
