@@ -31,7 +31,6 @@ node_modules/
 .env.*
 
 # Elephant separator data and generated outputs
-elephant-seperator/data/recordings/*
 !elephant-seperator/data/recordings/.gitkeep
 elephant-seperator/data/clean_samples/*
 !elephant-seperator/data/clean_samples/.gitkeep
