@@ -45,3 +45,6 @@ elephant-separator/results/separated_calls/*
 !elephant-separator/results/separated_calls/.gitkeep
 elephant-separator/results/spectrograms/*
 !elephant-separator/results/spectrograms/.gitkeep
+
+.obsidian/
+downloaded_data/
