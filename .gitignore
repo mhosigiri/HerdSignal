@@ -1,5 +1,9 @@
 .DS_Store
 
+# Ignore all .md files except README.md
+*.md
+!README.md
+
 # Environments
 .venv/
 venv/
@@ -29,25 +33,22 @@ node_modules/
 # Local editor/system files
 .env
 .env.*
+.obsidian/
+downloaded_data/
 
 # Elephant separator data and generated outputs
-
-!elephant-separator/data/recordings/.gitkeep
-
-!elephant-separator/data/noise_samples/.gitkeep
 elephant-separator/models/saved_models/*
-elephant-separator/database/*
-!elephant-separator/database/.gitkeep
-elephant-separator/experiments/
 !elephant-separator/models/saved_models/.gitkeep
 elephant-separator/models/nmf_components/*
 !elephant-separator/models/nmf_components/.gitkeep
+elephant-separator/database/*
+!elephant-separator/database/.gitkeep
+elephant-separator/experiments/
 elephant-separator/results/demucs/*
 elephant-separator/results/separated_calls/*
 !elephant-separator/results/separated_calls/.gitkeep
 elephant-separator/results/spectrograms/*
 !elephant-separator/results/spectrograms/.gitkeep
 elephant-separator/results/*_manifest.csv
-
-.obsidian/
-downloaded_data/
+!elephant-separator/data/recordings/.gitkeep
+!elephant-separator/data/noise_samples/.gitkeep
