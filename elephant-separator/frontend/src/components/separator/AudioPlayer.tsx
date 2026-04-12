@@ -1,23 +1,20 @@
 "use client";
 
-export function AudioPlayer({
-  title,
-  src,
-}: {
-  title: string;
-  src: string | null;
-}) {
+import { Card } from "@/components/ui/Card";
+import { Label } from "@/components/ui/Label";
+import { Caption } from "@/components/ui/Typography";
+
+export function AudioPlayer({ title, src }: { title: string; src: string | null }) {
   return (
-    <div className="rounded-[1.5rem] border border-stone-200 bg-white p-4 shadow-[0_12px_30px_rgba(56,44,29,0.06)]">
-      <p className="mb-3 text-sm font-medium text-stone-800">{title}</p>
+    <Card variant="default" shadow className="p-4">
+      <Label className="mb-3 block">{title}</Label>
       {src ? (
         <audio controls className="w-full">
           <source src={src} />
         </audio>
       ) : (
-        <p className="text-sm text-stone-500">No audio loaded yet.</p>
+        <Caption>No audio loaded yet.</Caption>
       )}
-    </div>
+    </Card>
   );
 }
-

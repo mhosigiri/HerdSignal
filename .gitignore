@@ -39,11 +39,12 @@ elephant-separator/models/saved_models/*
 !elephant-separator/models/saved_models/.gitkeep
 elephant-separator/models/nmf_components/*
 !elephant-separator/models/nmf_components/.gitkeep
+elephant-separator/results/demucs/*
 elephant-separator/results/separated_calls/*
 !elephant-separator/results/separated_calls/.gitkeep
 elephant-separator/results/spectrograms/*
 !elephant-separator/results/spectrograms/.gitkeep
+elephant-separator/results/*_manifest.csv
 
 .obsidian/
 downloaded_data/
-

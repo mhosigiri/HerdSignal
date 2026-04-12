@@ -1,3 +1,0 @@
-run_id	model_name	config	val_loss	notes
-
-4d14b1ac	CNN_64ch_6L	n_freq_used=256,n_hidden=64,n_layers=6,kernel=3,lr=0.001,wd=0.0001,bs=8	0.000002	steps=546,secs=3606

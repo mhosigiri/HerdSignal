@@ -1,33 +1,50 @@
 # Elephant Separator
 
-Starter scaffold for the elephant voice isolation pipeline described in [`../elephant-pipeline-guide.md`](../elephant-pipeline-guide.md).
+Elephant call isolation pipeline for noisy field recordings with:
 
-This directory currently focuses on project structure and implementation entry points, not a finished pipeline.
+- noise-aware preprocessing
+- tuned NMF batch separation for the 212 annotated calls
+- a lightweight trainable deep-learning separator
+- Demucs batch inference for whole-recording comparison
+- spectrogram and WAV export for review
 
-## Layout
+## Runtime Pieces
 
-- `data/`: input recordings, annotation metadata, clean reference calls, and noise-only samples
-- `src/`: preprocessing, separation, post-processing, evaluation, and visualization modules
-- `models/`: checkpoints and NMF artifacts
-- `notebooks/`: exploratory and modeling notebooks
-- `results/`: spectrogram exports and separated audio outputs
-- `experiments/`: lightweight research scripts and experiment logs
-- `tests/`: placeholder test modules for the main pipeline pieces
+- `frontend/`: Next.js app
+- `src/`: separation pipeline and batch runners
+- `data/`: recordings, annotations, clean references, noise references
+- `results/separated_calls/`: generated WAV outputs
+- `results/spectrograms/`: generated spectrograms
+- `database/`: Supabase schema and setup notes
 
-## Quick Start
+## Main Commands
 
-1. Create a Python 3.10+ environment.
-2. Install dependencies from `requirements.txt` or `pyproject.toml`.
-3. Populate `data/` with recordings and metadata.
-4. Start implementing the `src/` modules in guide order: preprocess, separate, postprocess, evaluate.
+From the project root:
 
-## Still Needed From You
+```bash
+source .venv/bin/activate
+python -m pytest -q
+python -m src.run_batch_separation --method nmf --output-tag nmf_full
+python -m src.run_batch_demucs --model htdemucs --output-tag demucs_full
+```
 
-- Provide the 44 source recordings in `data/recordings/`.
-- Fill `data/annotations.csv` with `filename,start_time,end_time,noise_type`.
-- Add clean elephant reference clips to `data/clean_samples/`.
-- Add noise-only clips to `data/noise_samples/`.
-- Decide whether the project directory should stay `elephant-seperator/` or be renamed to `elephant-separator/` to match the guide.
-- Create the runtime environment and install the audio/ML dependencies.
-- Decide the initial model path: NMF baseline first, Demucs/Asteroid first, or both in parallel.
+Frontend:
 
+```bash
+cd frontend
+npm run dev
+```
+
+## Kept In Repo
+
+- production and evaluation code under `src/`
+- tests for the implemented pipeline
+- Supabase schema docs
+- frontend app
+
+## Removed Or De-prioritized
+
+- PCA-based matching and PCA visualization
+- placeholder notebooks
+- research-only experiment scaffolding
+- disposable smoke outputs and oversized Demucs artifacts

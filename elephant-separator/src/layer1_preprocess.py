@@ -15,15 +15,19 @@ ArrayLike = np.ndarray
 
 def load_recording(filepath: str, target_sr: int = 44100) -> tuple[ArrayLike, int]:
     """Load a recording as mono audio at the target sample rate."""
-    audio, sr = sf.read(filepath, always_2d=False)
-    audio = np.asarray(audio, dtype=np.float32)
+    try:
+        audio, sr = sf.read(filepath, always_2d=False)
+        audio = np.asarray(audio, dtype=np.float32)
 
-    if audio.ndim > 1:
-        audio = np.mean(audio, axis=1)
+        if audio.ndim > 1:
+            audio = np.mean(audio, axis=1)
 
-    if sr != target_sr:
-        audio = librosa.resample(audio, orig_sr=sr, target_sr=target_sr)
-        sr = target_sr
+        if sr != target_sr:
+            audio = librosa.resample(audio, orig_sr=sr, target_sr=target_sr)
+            sr = target_sr
+    except Exception:  # noqa: BLE001
+        audio, sr = librosa.load(filepath, sr=target_sr, mono=True)
+        audio = np.asarray(audio, dtype=np.float32)
 
     return np.asarray(audio, dtype=np.float32), sr
 

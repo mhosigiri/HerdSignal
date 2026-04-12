@@ -10,7 +10,7 @@ const ElephantMap = dynamic(
     ssr: false,
     loading: () => (
       <div className="flex h-[34rem] items-center justify-center rounded-[2rem] border border-white/10 bg-[#14251a] text-stone-200">
-        Loading Leaflet map...
+        Loading map…
       </div>
     ),
   },
@@ -25,7 +25,7 @@ export default function MapPage() {
           Geospatial view of corridors, threats, and audio collection
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-600">
-          The map route now uses Leaflet with OpenStreetMap tiles, so there is no token setup or billing dependency. Supabase-backed GIS queries can be wired in next without changing the UI structure.
+          Google Maps with cloud-based satellite styling. Population bubbles, threat incidents, migration corridors, habitat zones, and audio markers are pulled from Supabase in real time.
         </p>
       </section>
 
