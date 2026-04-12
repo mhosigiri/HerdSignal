@@ -2,33 +2,18 @@
 
 import { create } from "zustand";
 
-import type { GeneratedAnnotation, SeparationStatus } from "@/types/audio";
+import type { SeparationStatus } from "@/types/audio";
 
 interface AudioStore {
   fileName: string | null;
   originalUrl: string | null;
   processedUrl: string | null;
-  originalSpectrogramUrl: string | null;
-  processedSpectrogramUrl: string | null;
-  annotations: GeneratedAnnotation[];
-  annotationCsv: string | null;
-  model: string | null;
-  device: string | null;
   progress: number;
   status: SeparationStatus;
   note: string;
   setUpload: (payload: { fileName: string; originalUrl: string }) => void;
   setProcessing: (progress: number) => void;
-  setComplete: (payload: {
-    processedUrl: string;
-    originalSpectrogramUrl: string | null;
-    processedSpectrogramUrl: string | null;
-    annotations: GeneratedAnnotation[];
-    annotationCsv: string | null;
-    model: string | null;
-    device: string | null;
-    note: string;
-  }) => void;
+  setComplete: (processedUrl: string, note: string) => void;
   setError: (note: string) => void;
   reset: () => void;
 }
@@ -37,12 +22,6 @@ const initialState = {
   fileName: null,
   originalUrl: null,
   processedUrl: null,
-  originalSpectrogramUrl: null,
-  processedSpectrogramUrl: null,
-  annotations: [],
-  annotationCsv: null,
-  model: null,
-  device: null,
   progress: 0,
   status: "idle" as SeparationStatus,
   note: "Upload a field recording to begin.",
@@ -55,40 +34,19 @@ export const useAudioStore = create<AudioStore>((set) => ({
       fileName,
       originalUrl,
       processedUrl: null,
-      originalSpectrogramUrl: null,
-      processedSpectrogramUrl: null,
-      annotations: [],
-      annotationCsv: null,
-      model: null,
-      device: null,
       progress: 0,
       status: "ready",
-      note: "Local preview ready. Start the separator to run GPU-backed deep-learning separation.",
+      note: "Local preview ready. Start the separator to simulate the first pass.",
     }),
   setProcessing: (progress) =>
     set({
       progress,
       status: "processing",
-      note: "Running deep-learning separation, spectrogram generation, and call annotation.",
+      note: "Running baseline preprocessing, STFT, and NMF separation.",
     }),
-  setComplete: ({
-    processedUrl,
-    originalSpectrogramUrl,
-    processedSpectrogramUrl,
-    annotations,
-    annotationCsv,
-    model,
-    device,
-    note,
-  }) =>
+  setComplete: (processedUrl, note) =>
     set({
       processedUrl,
-      originalSpectrogramUrl,
-      processedSpectrogramUrl,
-      annotations,
-      annotationCsv,
-      model,
-      device,
       progress: 100,
       status: "complete",
       note,
@@ -100,3 +58,4 @@ export const useAudioStore = create<AudioStore>((set) => ({
     }),
   reset: () => set(initialState),
 }));
+

@@ -5,18 +5,13 @@ import { useEffect, useRef } from "react";
 export function SpectrogramView({
   label,
   intensity,
-  imageUrl,
 }: {
   label: string;
   intensity: number;
-  imageUrl?: string | null;
 }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
-    if (imageUrl) {
-      return;
-    }
     const canvas = canvasRef.current;
     if (!canvas) {
       return;
@@ -47,19 +42,16 @@ export function SpectrogramView({
       context.fillStyle = gradient;
       context.fillRect(x, height - barHeight, 4, barHeight);
     }
-  }, [imageUrl, intensity]);
+  }, [intensity]);
 
   return (
     <div className="rounded-[1.75rem] border border-stone-900/10 bg-[#112217] p-4 shadow-[0_12px_40px_rgba(8,18,14,0.25)]">
       <div className="mb-3 flex items-center justify-between text-sm text-stone-200">
         <span>{label}</span>
-        <span className="text-stone-400">{imageUrl ? "Generated spectrogram" : "Preview spectrogram"}</span>
+        <span className="text-stone-400">Mock spectrogram</span>
       </div>
-      {imageUrl ? (
-        <img src={imageUrl} alt={label} className="h-56 w-full rounded-2xl object-cover" />
-      ) : (
-        <canvas ref={canvasRef} width={520} height={220} className="h-56 w-full rounded-2xl" />
-      )}
+      <canvas ref={canvasRef} width={520} height={220} className="h-56 w-full rounded-2xl" />
     </div>
   );
 }
+

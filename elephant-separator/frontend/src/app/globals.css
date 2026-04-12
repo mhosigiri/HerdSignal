@@ -1,210 +1,30 @@
 @import "tailwindcss";
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   LAYER 1 — BRAND / PRIMITIVE
-   Raw, named values. Never consumed by components directly.
-   Follows the Brand → Alias → Semantic three-layer structure.
-────────────────────────────────────────────────────────────────────────────── */
 :root {
-  /* Neutrals */
-  --brand-black:          #1b1a16;
-  --brand-white:          #ffffff;
-  --brand-parchment:      #f8f5ef;
-  --brand-cream:          #ece5da;
-  --brand-linen:          #f7f1e6;
-  --brand-dune:           #ece7df;
-
-  /* Forest greens (sidebar / primary actions) */
-  --brand-forest-deep:    #13251b;
-  --brand-forest:         #27452d;
-  --brand-forest-mid:     #1c3522;
-  --brand-forest-muted:   #2e442e;
-
-  /* Amber / gold (accent) */
-  --brand-amber:          #d2a24f;
-  --brand-amber-light:    #f5d98a;
-  --brand-amber-pale:     #f4e4c3;
-
-  /* Stone scale */
-  --brand-stone-50:       #fafaf9;
-  --brand-stone-100:      #f5f5f4;
-  --brand-stone-200:      #e7e5e4;
-  --brand-stone-300:      #d6d3d1;
-  --brand-stone-400:      #a8a29e;
-  --brand-stone-500:      #78716c;
-  --brand-stone-600:      #57534e;
-  --brand-stone-700:      #44403c;
-  --brand-stone-800:      #292524;
-  --brand-stone-900:      #1c1917;
-  --brand-stone-950:      #0c0a09;
-
-  /* Status / semantic hues */
-  --brand-green-bg:       #e2f0de;
-  --brand-green-fg:       #28482e;
-  --brand-amber-bg:       #f4e4c3;
-  --brand-amber-fg:       #7c5c20;
-  --brand-red-bg:         #f4d7cf;
-  --brand-red-fg:         #8f3f2c;
-  --brand-emerald:        #6ee7b7;
-  --brand-amber-warn:     #fcd34d;
-
-  /* ───────────────────────────────────────────────────────────────────────────
-     LAYER 2 — ALIAS / OPACITY VARIANTS
-     Reference a brand color at a specified opacity.
-  ────────────────────────────────────────────────────────────────────────────*/
-  --alias-forest-deep-98: rgba(19, 37, 27, 0.98);
-  --alias-forest-dark-98: rgba(10, 18, 14, 0.98);
-  --alias-forest-95:      rgba(46, 68, 46, 0.95);
-  --alias-amber-95:       rgba(210, 162, 79, 0.95);
-  --alias-amber-35:       rgba(210, 162, 79, 0.35);
-  --alias-black-15:       rgba(0, 0, 0, 0.15);
-  --alias-white-5:        rgba(255, 255, 255, 0.05);
-  --alias-white-10:       rgba(255, 255, 255, 0.10);
-  --alias-white-50:       rgba(255, 255, 255, 0.50);
-  --alias-stone-08:       rgba(56, 44, 29, 0.08);
-  --alias-stone-28:       rgba(20, 37, 26, 0.28);
-  --alias-amber-25:       rgba(210, 157, 72, 0.25);
-
-  /* ───────────────────────────────────────────────────────────────────────────
-     LAYER 3 — SEMANTIC / MAPPED
-     Purpose-driven tokens consumed by components. Swap for dark mode here.
-  ────────────────────────────────────────────────────────────────────────────*/
-
-  /* Page chrome */
-  --color-bg:             var(--brand-parchment);
-  --color-bg-subtle:      var(--brand-cream);
-  --color-fg:             var(--brand-black);
-  --color-fg-muted:       var(--brand-stone-500);
-  --color-fg-faint:       var(--brand-stone-400);
-
-  /* Surfaces */
-  --color-surface:        var(--brand-white);
-  --color-surface-raised: var(--brand-linen);
-  --color-surface-inset:  var(--brand-dune);
-  --color-surface-dark:   var(--brand-forest-deep);
-
-  /* Borders */
-  --color-border:         var(--brand-stone-200);
-  --color-border-subtle:  var(--alias-white-10);
-  --color-border-dashed:  var(--brand-stone-400);
-
-  /* Primary interactive (forest green) */
-  --color-primary:        var(--brand-forest);
-  --color-primary-hover:  var(--brand-forest-mid);
-  --color-primary-fg:     var(--brand-stone-50);
-
-  /* Accent (amber gold) */
-  --color-accent:         var(--brand-amber);
-  --color-accent-light:   var(--brand-amber-light);
-  --color-accent-pale:    var(--brand-amber-pale);
-  --color-accent-fg:      var(--brand-stone-950);
-
-  /* Status tones */
-  --color-status-positive-bg:  var(--brand-green-bg);
-  --color-status-positive-fg:  var(--brand-green-fg);
-  --color-status-warning-bg:   var(--brand-amber-bg);
-  --color-status-warning-fg:   var(--brand-amber-fg);
-  --color-status-critical-bg:  var(--brand-red-bg);
-  --color-status-critical-fg:  var(--brand-red-fg);
-  --color-status-neutral-bg:   var(--brand-dune);
-  --color-status-neutral-fg:   var(--brand-stone-600);
-
-  /* Typography */
-  --font-display:         var(--font-display);
-  --font-mono:            var(--font-mono);
-
-  /* Shadows (semantic) */
-  --shadow-card:          0 16px 50px var(--alias-stone-08);
-  --shadow-card-lg:       0 20px 80px var(--alias-stone-08);
-  --shadow-hero:          0 28px 100px var(--alias-stone-28);
-  --shadow-accent:        0 12px 40px var(--alias-amber-25);
-
-  /* Radius scale */
-  --radius-sm:   0.75rem;   /* 12px  pill for inline badges */
-  --radius-md:   1.25rem;   /* 20px  buttons, inputs */
-  --radius-lg:   1.75rem;   /* 28px  cards */
-  --radius-xl:   2rem;      /* 32px  panel sections */
-  --radius-2xl:  2.5rem;    /* 40px  hero cards */
-
-  /* Spacing scale (semantic) */
-  --space-section: 1.5rem;  /* gap between dashboard sections */
-  --space-panel:   1.5rem;  /* internal panel padding */
-}
-
-/* ─────────────────────────────────────────────────────────────────────────────
-   TAILWIND v4 @THEME BLOCK
-   Exposes CSS custom properties as Tailwind utility classes.
-   e.g. bg-background, text-fg-muted, border-border, shadow-card
-────────────────────────────────────────────────────────────────────────────── */
-@theme inline {
-  /* Fonts */
   --font-sans: var(--font-display);
   --font-mono: var(--font-mono);
-
-  /* Color utilities */
-  --color-background:           var(--color-bg);
-  --color-foreground:           var(--color-fg);
-  --color-fg-muted:             var(--color-fg-muted);
-  --color-fg-faint:             var(--color-fg-faint);
-
-  --color-surface:              var(--color-surface);
-  --color-surface-raised:       var(--color-surface-raised);
-  --color-surface-inset:        var(--color-surface-inset);
-  --color-surface-dark:         var(--color-surface-dark);
-
-  --color-border:               var(--color-border);
-  --color-border-subtle:        var(--color-border-subtle);
-
-  --color-primary:              var(--color-primary);
-  --color-primary-hover:        var(--color-primary-hover);
-  --color-primary-fg:           var(--color-primary-fg);
-
-  --color-accent:               var(--color-accent);
-  --color-accent-light:         var(--color-accent-light);
-  --color-accent-pale:          var(--color-accent-pale);
-  --color-accent-fg:            var(--color-accent-fg);
-
-  --color-status-positive-bg:   var(--color-status-positive-bg);
-  --color-status-positive-fg:   var(--color-status-positive-fg);
-  --color-status-warning-bg:    var(--color-status-warning-bg);
-  --color-status-warning-fg:    var(--color-status-warning-fg);
-  --color-status-critical-bg:   var(--color-status-critical-bg);
-  --color-status-critical-fg:   var(--color-status-critical-fg);
-  --color-status-neutral-bg:    var(--color-status-neutral-bg);
-  --color-status-neutral-fg:    var(--color-status-neutral-fg);
-
-  /* Shadow utilities */
-  --shadow-card:    var(--shadow-card);
-  --shadow-card-lg: var(--shadow-card-lg);
-  --shadow-hero:    var(--shadow-hero);
-  --shadow-accent:  var(--shadow-accent);
-
-  /* Border radius utilities */
-  --radius-sm:  var(--radius-sm);
-  --radius-md:  var(--radius-md);
-  --radius-lg:  var(--radius-lg);
-  --radius-xl:  var(--radius-xl);
-  --radius-2xl: var(--radius-2xl);
+  --background: #f8f5ef;
+  --foreground: #1b1a16;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   BASE / RESET
-────────────────────────────────────────────────────────────────────────────── */
-*,
-*::before,
-*::after {
+@theme inline {
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+* {
   box-sizing: border-box;
 }
 
 html {
-  background: var(--color-bg);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: var(--background);
 }
 
 body {
   min-height: 100vh;
-  color: var(--color-fg);
+  color: var(--foreground);
   font-family: var(--font-display), sans-serif;
 }
 
@@ -221,14 +41,6 @@ textarea {
 }
 
 ::selection {
-  background: var(--alias-amber-35);
+  background: rgba(210, 162, 79, 0.35);
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   FOCUS RING (accessible, design-token-driven)
-────────────────────────────────────────────────────────────────────────────── */
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}

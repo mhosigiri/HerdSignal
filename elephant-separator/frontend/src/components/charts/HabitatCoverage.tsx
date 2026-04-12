@@ -19,8 +19,8 @@ export function HabitatCoverage({ data }: { data: HabitatDatum[] }) {
         <p className="text-xs uppercase tracking-[0.28em] text-stone-400">Habitat stability</p>
         <h2 className="mt-2 text-xl font-semibold">Protected vs fragmented area</h2>
       </div>
-      <div className="h-[200px] min-w-0">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="min-h-[200px] min-w-0">
+        <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data}>
             <CartesianGrid stroke="#2c4032" vertical={false} />
             <XAxis dataKey="year" tickLine={false} axisLine={false} tick={{ fill: "#cfc2ad" }} />

@@ -19,8 +19,8 @@ export function PopulationTrend({ data }: { data: PopulationPoint[] }) {
         <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Population trend</p>
         <h2 className="mt-2 text-xl font-semibold text-stone-900">Regional estimate recovery</h2>
       </div>
-      <div className="h-[200px] min-w-0">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="min-h-[200px] min-w-0">
+        <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={data}>
             <defs>
               <linearGradient id="populationFill" x1="0" y1="0" x2="0" y2="1">
