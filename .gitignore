@@ -36,6 +36,9 @@ node_modules/
 
 !elephant-separator/data/noise_samples/.gitkeep
 elephant-separator/models/saved_models/*
+elephant-separator/database/*
+!elephant-separator/database/.gitkeep
+elephant-separator/experiments/
 !elephant-separator/models/saved_models/.gitkeep
 elephant-separator/models/nmf_components/*
 !elephant-separator/models/nmf_components/.gitkeep
