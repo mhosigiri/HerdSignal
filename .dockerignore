@@ -1,0 +1,13 @@
+.git
+.obsidian
+.DS_Store
+downloaded_data
+*.md
+!elephant-separator/frontend/.env.example
+elephant-separator/.venv
+elephant-separator/frontend/node_modules
+elephant-separator/frontend/.next
+elephant-separator/results
+elephant-separator/experiments
+elephant-separator/__pycache__
+elephant-separator/src/__pycache__
