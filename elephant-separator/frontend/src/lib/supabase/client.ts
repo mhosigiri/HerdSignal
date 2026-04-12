@@ -1,21 +1,17 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-let browserClient:
-  | ReturnType<typeof createClient>
-  | null = null;
+let browserClient: SupabaseClient | null = null;
 
-export function getSupabaseBrowserClient() {
+/** Browser-only Supabase client (NEXT_PUBLIC_* env). No query logic here. */
+export function getSupabaseBrowserClient(): SupabaseClient {
+  if (browserClient) return browserClient;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !anonKey) {
-    return null;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    );
   }
-
-  if (!browserClient) {
-    browserClient = createClient(url, anonKey);
-  }
-
+  browserClient = createClient(url, key);
   return browserClient;
 }
-

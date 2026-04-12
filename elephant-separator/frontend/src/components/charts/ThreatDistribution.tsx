@@ -11,8 +11,8 @@ export function ThreatDistribution({ data }: { data: ThreatDatum[] }) {
         <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Threat mix</p>
         <h2 className="mt-2 text-xl font-semibold text-stone-900">Pressure by incident class</h2>
       </div>
-      <div className="h-[200px] min-w-0">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="min-h-[200px] min-w-0">
+        <ResponsiveContainer width="100%" height={200}>
           <PieChart>
             <Pie data={data} dataKey="incidents" nameKey="name" innerRadius={55} outerRadius={95}>
               {data.map((entry) => (

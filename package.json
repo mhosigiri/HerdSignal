@@ -1,0 +1,11 @@
+{
+  "name": "hacksmu",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix elephant-separator/frontend",
+    "build": "npm run build --prefix elephant-separator/frontend",
+    "start": "npm run start --prefix elephant-separator/frontend",
+    "lint": "npm run lint --prefix elephant-separator/frontend",
+    "typecheck": "npm run typecheck --prefix elephant-separator/frontend"
+  }
+}
