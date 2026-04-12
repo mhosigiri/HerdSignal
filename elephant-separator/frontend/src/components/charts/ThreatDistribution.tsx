@@ -6,22 +6,51 @@ import type { ThreatDatum } from "@/types/elephant";
 
 export function ThreatDistribution({ data }: { data: ThreatDatum[] }) {
   return (
-    <div className="h-72 rounded-[2rem] border border-stone-200/80 bg-[#f6f0e5] p-5 shadow-[0_24px_80px_rgba(56,44,29,0.08)]">
-      <div className="mb-4">
-        <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Threat mix</p>
-        <h2 className="mt-2 text-xl font-semibold text-stone-900">Pressure by incident class</h2>
-      </div>
-      <div className="min-h-[200px] min-w-0">
-        <ResponsiveContainer width="100%" height={200}>
+    <div>
+      <p className="t-eyebrow" style={{ marginBottom: "0.5rem" }}>Threat mix</p>
+      <p className="t-h3" style={{ marginBottom: "2rem" }}>Pressure by incident class</p>
+      <div className="flex items-center gap-8">
+        <ResponsiveContainer width={180} height={180}>
           <PieChart>
-            <Pie data={data} dataKey="incidents" nameKey="name" innerRadius={55} outerRadius={95}>
+            <Pie
+              data={data}
+              dataKey="incidents"
+              nameKey="name"
+              innerRadius={55}
+              outerRadius={88}
+              strokeWidth={0}
+            >
               {data.map((entry) => (
                 <Cell key={entry.name} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                background: "#161616",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: "0.75rem",
+                color: "#fff",
+                fontSize: "0.8125rem",
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          {data.map((entry) => (
+            <div key={entry.name} className="flex items-center gap-2.5">
+              <span
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  background: entry.color,
+                  flexShrink: 0,
+                }}
+              />
+              <span className="t-small">{entry.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

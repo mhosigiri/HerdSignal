@@ -1,8 +1,22 @@
 export async function explainVoicePrompt(prompt: string) {
+  const response = await fetch("/api/voice", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt }),
+  });
+
+  const payload = (await response.json()) as {
+    transcript?: string;
+    response?: string;
+    error?: string;
+  };
+
+  if (!response.ok) {
+    throw new Error(payload.error ?? "Voice request failed.");
+  }
+
   return {
-    transcript: prompt,
-    response:
-      "Voice mode is scaffolded. Connect this handler to Whisper, Supabase-backed facts, and TTS once those services are ready.",
+    transcript: payload.transcript ?? prompt,
+    response: payload.response ?? "No response generated.",
   };
 }
-

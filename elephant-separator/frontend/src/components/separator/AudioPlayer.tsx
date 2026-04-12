@@ -1,23 +1,20 @@
 "use client";
 
-export function AudioPlayer({
-  title,
-  src,
-}: {
-  title: string;
-  src: string | null;
-}) {
+export function AudioPlayer({ title, src }: { title: string; src: string | null }) {
   return (
-    <div className="rounded-[1.5rem] border border-stone-200 bg-white p-4 shadow-[0_12px_30px_rgba(56,44,29,0.06)]">
-      <p className="mb-3 text-sm font-medium text-stone-800">{title}</p>
+    <div style={{ paddingTop: "1.5rem" }}>
+      <p className="t-eyebrow" style={{ marginBottom: "0.75rem" }}>
+        {title}
+      </p>
       {src ? (
-        <audio controls className="w-full">
+        <audio controls className="w-full" style={{ height: "2.5rem" }}>
           <source src={src} />
         </audio>
       ) : (
-        <p className="text-sm text-stone-500">No audio loaded yet.</p>
+        <p className="t-small" style={{ color: "var(--c-400)" }}>
+          No audio loaded yet.
+        </p>
       )}
     </div>
   );
 }
-

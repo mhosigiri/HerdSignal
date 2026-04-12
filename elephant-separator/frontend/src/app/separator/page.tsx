@@ -1,6 +1,5 @@
-import { SeparatorPanel } from "@/components/separator/SeparatorPanel";
+import { redirect } from "next/navigation";
 
 export default function SeparatorPage() {
-  return <SeparatorPanel />;
+  redirect("/#separator");
 }
-

@@ -1,6 +1,5 @@
-import { VoiceMode } from "@/components/voice/VoiceMode";
+import { redirect } from "next/navigation";
 
 export default function VoicePage() {
-  return <VoiceMode />;
+  redirect("/#voice");
 }
-

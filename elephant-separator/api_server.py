@@ -1,8 +1,8 @@
 """FastAPI server for the NMF-based elephant separator.
 
-The deep-learning separator requires extensive training data and time to converge.
-NMF is unsupervised and already proven across 212 files with 0.72 match score and
-near-zero noise contamination for vehicle/generator noise.
+The product upload route uses the tuned NMF baseline rather than the
+deep-learning path. NMF is unsupervised and already proven across 212 files
+with solid matching and low contamination on the annotated dataset.
 
 Start with:
     cd /Users/arniskc/Desktop/HackSMU/elephant-separator

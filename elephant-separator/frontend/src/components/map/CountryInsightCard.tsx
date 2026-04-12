@@ -101,27 +101,59 @@ function CountryAudioBlock(props: {
         onPause={() => setPlaying(false)}
         onEnded={() => setPlaying(false)}
       />
-      <div className="mt-4 border-t border-white/[0.06] pt-3">
-        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-stone-500">
+      <div style={{ padding: "0.75rem 1rem" }}>
+        <p
+          style={{
+            fontSize: "0.5625rem",
+            fontWeight: 600,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.25)",
+            marginBottom: "0.5rem",
+            fontFamily: "var(--font-mono), monospace",
+          }}
+        >
           Country audio
         </p>
         {loading ? (
-          <p className="mt-2 text-[12px] text-stone-400">Loading…</p>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.28)" }}>Loading…</p>
         ) : error ? (
-          <p className="mt-2 text-[12px] text-stone-400">{error}</p>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.28)" }}>{error}</p>
         ) : !audio || !audioUrl ? (
-          <p className="mt-2 text-[12px] text-stone-500">No audio available</p>
+          <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.22)" }}>No audio available</p>
         ) : (
-          <div className="mt-2 flex items-center gap-3">
+          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
             <button
               type="button"
               onClick={togglePlayback}
               disabled={!canPlay}
-              className="shrink-0 rounded-full bg-white/[0.08] px-3 py-1.5 text-[11px] font-medium text-stone-100 ring-1 ring-white/[0.08] transition-colors hover:bg-white/[0.12] disabled:cursor-not-allowed disabled:opacity-40"
+              style={{
+                flexShrink: 0,
+                fontSize: "0.6875rem",
+                fontWeight: 500,
+                color: playing ? "rgba(210,162,79,0.9)" : "rgba(255,255,255,0.75)",
+                background: playing ? "rgba(210,162,79,0.1)" : "rgba(255,255,255,0.06)",
+                border: `1px solid ${playing ? "rgba(210,162,79,0.25)" : "rgba(255,255,255,0.08)"}`,
+                borderRadius: "9999px",
+                padding: "0.3rem 0.75rem",
+                cursor: canPlay ? "pointer" : "not-allowed",
+                opacity: canPlay ? 1 : 0.35,
+                transition: "all 0.15s ease",
+              }}
             >
-              {playing ? "Pause" : "Play"}
+              {playing ? "⏸ Pause" : "▶ Play"}
             </button>
-            <p className="min-w-0 truncate text-[12px] text-stone-300" title={audio.title}>
+            <p
+              style={{
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontSize: "0.6875rem",
+                color: "rgba(255,255,255,0.45)",
+              }}
+              title={audio.title}
+            >
               {audio.title || "Recording"}
             </p>
           </div>
@@ -150,40 +182,133 @@ export default function CountryInsightCard({
         : String(v);
 
   return (
-    <div className="pointer-events-auto absolute bottom-4 right-4 z-[500] max-w-sm overflow-hidden rounded-2xl border border-white/[0.07] bg-[rgba(12,18,16,0.72)] px-4 py-3.5 text-stone-100 shadow-[0_12px_48px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-lg font-semibold leading-snug tracking-tight text-stone-50">
+    <div
+      className="pointer-events-auto"
+      style={{
+        position: "absolute",
+        bottom: "1.25rem",
+        right: "1.25rem",
+        zIndex: 500,
+        width: "17rem",
+        background: "rgba(0,0,0,0.72)",
+        backdropFilter: "blur(24px) saturate(1.8)",
+        WebkitBackdropFilter: "blur(24px) saturate(1.8)",
+        borderRadius: "1rem",
+        border: "1px solid rgba(255,255,255,0.07)",
+        overflow: "hidden",
+        color: "rgba(255,255,255,0.9)",
+      }}
+    >
+      {/* Country name header */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          padding: "0.875rem 1rem 0.75rem",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <p
+            style={{
+              fontSize: "1rem",
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.2,
+              color: "rgba(255,255,255,0.95)",
+              marginBottom: "0.25rem",
+            }}
+          >
             {detail.displayName ?? detail.country}
           </p>
-          <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.16em] text-stone-500">
+          <p
+            style={{
+              fontSize: "0.5625rem",
+              fontWeight: 600,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.25)",
+              fontFamily: "var(--font-mono), monospace",
+            }}
+          >
             {detail.isoCode}
           </p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium text-stone-500 transition-colors hover:bg-white/[0.06] hover:text-stone-200"
+          style={{
+            flexShrink: 0,
+            fontSize: "0.625rem",
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.28)",
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            borderRadius: "9999px",
+            padding: "0.25rem 0.625rem",
+            cursor: "pointer",
+            transition: "color 0.15s, background 0.15s",
+            fontFamily: "var(--font-mono), monospace",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)";
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.1)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.28)";
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.05)";
+          }}
         >
-          Close
+          ✕
         </button>
       </div>
 
+      {/* Metric value */}
       {selectedMetric === null ? (
-        <p className="mt-4 text-[12px] leading-relaxed text-stone-500">
-          Select a metric above to see values for this country.
-        </p>
+        <div style={{ padding: "0.75rem 1rem" }}>
+          <p
+            style={{
+              fontSize: "0.75rem",
+              color: "rgba(255,255,255,0.28)",
+              lineHeight: 1.5,
+            }}
+          >
+            Select a metric from the left panel to see data for this country.
+          </p>
+        </div>
       ) : (
-        <div className="mt-4 rounded-xl bg-white/[0.05] px-3 py-2.5 ring-1 ring-white/[0.06]">
-          <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-stone-500">
+        <div style={{ padding: "0.75rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+          <p
+            style={{
+              fontSize: "0.5625rem",
+              fontWeight: 600,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "rgba(210,162,79,0.6)",
+              marginBottom: "0.375rem",
+              fontFamily: "var(--font-mono), monospace",
+            }}
+          >
             {metricHeading(selectedMetric)}
           </p>
-          <p className="mt-1 text-[15px] font-medium tabular-nums tracking-tight text-stone-100">
+          <p
+            style={{
+              fontSize: "1.375rem",
+              fontWeight: 600,
+              letterSpacing: "-0.025em",
+              color: "rgba(255,255,255,0.92)",
+              lineHeight: 1,
+            }}
+          >
             {valueLabel}
           </p>
         </div>
       )}
 
+      {/* Audio block */}
       <CountryAudioBlock
         key={detail.isoCode}
         loading={loading}

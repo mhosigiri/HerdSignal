@@ -3,7 +3,7 @@ import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 
 import { Providers } from "@/components/providers/Providers";
-import { Sidebar } from "@/components/ui/Sidebar";
+import { TopNav } from "@/components/ui/TopNav";
 
 import "./globals.css";
 
@@ -15,7 +15,7 @@ const display = Space_Grotesk({
 const mono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
-  variable: "--font-mono",
+  variable: "--font-mono-var",
 });
 
 export const metadata: Metadata = {
@@ -32,12 +32,8 @@ export default function RootLayout({
     <html lang="en" className={`${display.variable} ${mono.variable}`}>
       <body>
         <Providers>
-          <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#efe5d1_0%,#f8f5ef_38%,#ece5da_100%)] text-stone-900">
-            <div className="grid min-h-screen lg:grid-cols-[18rem_1fr]">
-              <Sidebar />
-              <main className="min-h-screen px-4 py-4 sm:px-6 lg:px-8">{children}</main>
-            </div>
-          </div>
+          <TopNav />
+          <main>{children}</main>
         </Providers>
       </body>
     </html>

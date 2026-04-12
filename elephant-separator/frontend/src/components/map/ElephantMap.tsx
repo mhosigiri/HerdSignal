@@ -471,14 +471,32 @@ export default function ElephantMap() {
   }, [selectedMetric, heatmapRows]);
 
   return (
-    <div className="relative h-full w-full min-h-0 overflow-hidden rounded-[2rem] border border-white/[0.07] bg-[#0c1410] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)]">
+    <div
+      className="relative h-full w-full min-h-0 overflow-hidden"
+      style={{ background: "#080808" }}
+    >
+      {/* Map canvas */}
       <div
         ref={containerRef}
         className="h-full w-full min-h-0"
         style={{ minHeight: "100%" }}
       />
 
-      <div className="pointer-events-none absolute left-3 top-3 z-[500] flex max-w-[min(100%,26rem)] flex-col gap-1.5">
+      {/* ── Left panel — vertical filter + legend column ── */}
+      <div
+        className="pointer-events-none"
+        style={{
+          position: "absolute",
+          left: "1.25rem",
+          top: "1.25rem",
+          bottom: "1.25rem",
+          zIndex: 500,
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.625rem",
+          width: "11rem",
+        }}
+      >
         <HeatmapTogglePanel
           selectedMetric={selectedMetric}
           onMetricChange={setSelectedMetric}
@@ -486,14 +504,32 @@ export default function ElephantMap() {
         <HeatmapLegend selectedMetric={selectedMetric} />
       </div>
 
+      {/* ── Loading / error status chip ── */}
       {(heatmapLoading || heatmapError) && (
-        <div className="pointer-events-none absolute right-4 top-4 z-[499] max-w-[11rem] rounded-lg border border-white/[0.06] bg-black/25 px-2 py-1 text-[10px] text-stone-500 backdrop-blur-sm">
-          {heatmapLoading
-            ? "Loading metrics…"
-            : "Metrics unavailable"}
+        <div
+          className="pointer-events-none"
+          style={{
+            position: "absolute",
+            top: "1.25rem",
+            right: "1.25rem",
+            zIndex: 499,
+            fontSize: "0.625rem",
+            letterSpacing: "0.06em",
+            color: "rgba(255,255,255,0.28)",
+            background: "rgba(0,0,0,0.5)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderRadius: "9999px",
+            padding: "0.3rem 0.75rem",
+            border: "1px solid rgba(255,255,255,0.06)",
+            fontFamily: "var(--font-mono), monospace",
+          }}
+        >
+          {heatmapLoading ? "Loading metrics…" : "Metrics unavailable"}
         </div>
       )}
 
+      {/* ── Country insight card — bottom right ── */}
       <CountryInsightCard
         detail={selectedCountry}
         selectedMetric={selectedMetric}

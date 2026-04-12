@@ -1,18 +1,17 @@
 import { HabitatCoverage } from "@/components/charts/HabitatCoverage";
+import MapClientShell from "@/components/map/MapClientShell";
 import { PopulationTrend } from "@/components/charts/PopulationTrend";
 import { ThreatDistribution } from "@/components/charts/ThreatDistribution";
+import { SeparatorPanel } from "@/components/separator/SeparatorPanel";
+import { VoiceMode } from "@/components/voice/VoiceMode";
 import { getOverviewData } from "@/lib/api/overview";
 
-function metricToneClass(tone: string) {
+function toneMeta(tone: string): { dot: string; label: string } {
   switch (tone) {
-    case "positive":
-      return "bg-[#e2f0de] text-[#28482e]";
-    case "warning":
-      return "bg-[#f4e4c3] text-[#7c5c20]";
-    case "critical":
-      return "bg-[#f4d7cf] text-[#8f3f2c]";
-    default:
-      return "bg-[#ece7df] text-[#5f574b]";
+    case "positive": return { dot: "#5d8b63", label: "positive" };
+    case "warning":  return { dot: "#d2a24f", label: "caution" };
+    case "critical": return { dot: "#d76848", label: "critical" };
+    default:         return { dot: "#666",    label: "neutral" };
   }
 }
 
@@ -20,93 +19,302 @@ export default async function HomePage() {
   const data = await getOverviewData();
 
   return (
-    <div className="space-y-6">
-      <section className="overflow-hidden rounded-[2.5rem] border border-white/50 bg-[linear-gradient(135deg,rgba(20,37,26,0.98),rgba(46,68,46,0.95)_55%,rgba(210,162,79,0.95))] px-6 py-10 text-stone-50 shadow-[0_28px_100px_rgba(20,37,26,0.28)] sm:px-8">
-        <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="space-y-5">
-            <p className="text-xs uppercase tracking-[0.4em] text-amber-100/70">
-              Conservation command surface
-            </p>
-            <div className="max-w-3xl space-y-4">
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                Build one place for movement intelligence, acoustic cleanup, and field storytelling.
-              </h1>
-              <p className="max-w-2xl text-base leading-7 text-stone-200">
-                The frontend is now scaffolded around the product described in the new guides: map-centered analysis, a separation workstation, and voice-first exploration with Supabase integration points.
-              </p>
+    <>
+      {/* ══════════════════════════════════════════
+          HERO
+      ══════════════════════════════════════════ */}
+      <section
+        id="overview"
+        style={{
+          minHeight: "100svh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          padding: "0 0 6rem",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background glow */}
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(39,69,45,0.35) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: "40%",
+            background: "linear-gradient(to bottom, transparent, #000)",
+            pointerEvents: "none",
+          }}
+        />
+
+        <div className="section-inner" style={{ position: "relative" }}>
+          <p className="t-eyebrow" style={{ marginBottom: "1.5rem" }}>
+            Elephant · Field Intelligence
+          </p>
+          <h1 className="t-hero" style={{ maxWidth: "14ch", marginBottom: "2rem" }}>
+            Movement,{" "}
+            <span style={{ color: "var(--c-gold)" }}>acoustics</span>,{" "}
+            and field stories.
+          </h1>
+          <p className="t-body" style={{ maxWidth: "50ch", marginBottom: "3rem" }}>
+            One scrollable surface for map intelligence, acoustic noise separation, and
+            voice-first conservation exploration — powered by a local Python separator and
+            Supabase data layer.
+          </p>
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+            <a href="#separator" className="btn btn-primary">
+              Open separator
+            </a>
+            <a href="#voice" className="btn btn-ghost">
+              Voice mode
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          METRICS
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: "5rem 0" }}>
+        <div className="section-inner">
+          <div className="section-rule" style={{ marginBottom: "4rem" }} />
+          <p className="t-eyebrow" style={{ marginBottom: "3rem" }}>Conservation command</p>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: "0 3rem",
+            }}
+          >
+            {data.summaryMetrics.map((metric) => {
+              const meta = toneMeta(metric.tone);
+              return (
+                <div key={metric.label} className="metric-tile">
+                  <p className="t-eyebrow" style={{ marginBottom: "0.75rem" }}>
+                    {metric.label}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: "clamp(2rem, 5vw, 3.25rem)",
+                      fontWeight: 700,
+                      letterSpacing: "-0.03em",
+                      color: "var(--c-white)",
+                      lineHeight: 1,
+                      marginBottom: "0.75rem",
+                    }}
+                  >
+                    {metric.value}
+                  </p>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      fontSize: "0.75rem",
+                      color: meta.dot,
+                      fontWeight: 500,
+                      letterSpacing: "0.06em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: meta.dot,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {metric.change}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          CHARTS
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: "5rem 0" }}>
+        <div className="section-inner">
+          <div className="section-rule" style={{ marginBottom: "5rem" }} />
+          <div className="chart-grid">
+            <div>
+              <PopulationTrend data={data.populationTrend} />
+            </div>
+            <div>
+              <ThreatDistribution data={data.threatBreakdown} />
+            </div>
+            <div className="chart-grid-full" style={{ gridColumn: "1 / -1" }}>
+              <HabitatCoverage data={data.habitatCoverage} />
             </div>
           </div>
-
-          <div className="rounded-[2rem] border border-white/10 bg-black/15 p-5 backdrop-blur">
-            <p className="text-xs uppercase tracking-[0.3em] text-stone-300">What is live now</p>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-stone-100">
-              <li>Next.js App Router frontend scaffolded under `frontend/`.</li>
-              <li>Dashboard, map, separator, and voice routes implemented.</li>
-              <li>React Query, Zustand, Supabase client stubs, and mock API layer in place.</li>
-              <li>UI tolerates missing credentials while backend services are still being wired.</li>
-            </ul>
-          </div>
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-4">
-        {data.summaryMetrics.map((metric) => (
-          <article
-            key={metric.label}
-            className="rounded-[2rem] border border-stone-200/80 bg-white/80 p-5 shadow-[0_16px_50px_rgba(56,44,29,0.08)] backdrop-blur"
-          >
-            <p className="text-xs uppercase tracking-[0.24em] text-stone-500">{metric.label}</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-stone-900">
-              {metric.value}
-            </p>
-            <span
-              className={`mt-4 inline-flex rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${metricToneClass(metric.tone)}`}
-            >
-              {metric.change}
-            </span>
-          </article>
-        ))}
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <PopulationTrend data={data.populationTrend} />
-        <ThreatDistribution data={data.threatBreakdown} />
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-        <HabitatCoverage data={data.habitatCoverage} />
-        <div className="rounded-[2rem] border border-stone-200/80 bg-[#f7f1e6] p-6 shadow-[0_20px_80px_rgba(56,44,29,0.08)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Audio watchlist</p>
-          <h2 className="mt-2 text-2xl font-semibold text-stone-900">
-            Field recordings queued for separator review
+      {/* ══════════════════════════════════════════
+          AUDIO WATCHLIST
+      ══════════════════════════════════════════ */}
+      <section style={{ padding: "5rem 0" }}>
+        <div className="section-inner">
+          <div className="section-rule" style={{ marginBottom: "4rem" }} />
+          <p className="t-eyebrow" style={{ marginBottom: "0.75rem" }}>Audio watchlist</p>
+          <h2 className="t-h2" style={{ marginBottom: "1rem", maxWidth: "20ch" }}>
+            Field recordings queued for review
           </h2>
-          <div className="mt-6 space-y-4">
-            {data.audioAssets.map((asset) => (
-              <div
-                key={asset.id}
-                className="flex flex-col justify-between gap-3 rounded-[1.5rem] border border-stone-200 bg-white p-4 sm:flex-row sm:items-center"
-              >
-                <div>
-                  <p className="text-sm font-medium text-stone-900">{asset.title}</p>
-                  <p className="mt-1 text-sm text-stone-600">
-                    {asset.location} · {asset.durationSeconds}s
-                  </p>
-                </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs uppercase tracking-[0.18em] ${
-                    asset.status === "isolated"
-                      ? "bg-[#e2f0de] text-[#28482e]"
-                      : "bg-[#ece7df] text-[#5f574b]"
-                  }`}
+          <p className="t-body" style={{ maxWidth: "48ch", marginBottom: "3rem" }}>
+            Recordings staged for acoustic separation. Run them through the separator below to
+            isolate elephant calls from vehicle and ambient noise.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {data.audioAssets.map((asset, i) => {
+              const isPositive = asset.status === "isolated";
+              return (
+                <div
+                  key={asset.id}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: "2rem",
+                    padding: "1.5rem 0",
+                    borderTop: i === 0 ? "1px solid var(--c-600)" : "none",
+                    borderBottom: "1px solid var(--c-600)",
+                  }}
                 >
-                  {asset.status}
-                </span>
-              </div>
-            ))}
+                  <div>
+                    <p style={{ color: "var(--c-white)", fontWeight: 500, fontSize: "0.9375rem", marginBottom: "0.3rem" }}>
+                      {asset.title}
+                    </p>
+                    <p className="t-mono">
+                      {asset.location} · {asset.durationSeconds}s
+                    </p>
+                  </div>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      fontSize: "0.6875rem",
+                      fontWeight: 600,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      color: isPositive ? "var(--c-green-bright)" : "var(--c-400)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "5px",
+                        height: "5px",
+                        borderRadius: "50%",
+                        background: isPositive ? "var(--c-green-bright)" : "var(--c-400)",
+                        flexShrink: 0,
+                      }}
+                    />
+                    {asset.status}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
-    </div>
+
+      {/* ══════════════════════════════════════════
+          SEPARATOR
+      ══════════════════════════════════════════ */}
+      <section id="separator" style={{ padding: "7rem 0" }}>
+        <div className="section-inner">
+          <div className="section-rule" style={{ marginBottom: "5rem" }} />
+          <SeparatorPanel />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          VOICE
+      ══════════════════════════════════════════ */}
+      <section id="voice" style={{ padding: "7rem 0" }}>
+        <div className="section-inner">
+          <div className="section-rule" style={{ marginBottom: "5rem" }} />
+          <VoiceMode />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          MAP SECTION
+      ══════════════════════════════════════════ */}
+      <section id="map" style={{ padding: "7rem 0 0" }}>
+        {/* Header lives in the centred column */}
+        <div className="section-inner" style={{ marginBottom: "2.5rem" }}>
+          <div className="section-rule" style={{ marginBottom: "5rem" }} />
+          <p className="t-eyebrow" style={{ marginBottom: "0.75rem" }}>Geographic intelligence</p>
+          <h2 className="t-h2" style={{ marginBottom: "1rem" }}>Range and habitat map</h2>
+          <p className="t-body" style={{ maxWidth: "52ch" }}>
+            Population density, habitat fragmentation, and incident hotspots rendered on an
+            interactive basemap. Click any country to explore regional metrics and country audio.
+          </p>
+        </div>
+
+        {/* Full-bleed map — no inner container so it can breathe edge to edge */}
+        <div
+          style={{
+            width: "100%",
+            height: "680px",
+            position: "relative",
+            /* subtle top/bottom fade so map bleeds into page bg */
+            maskImage:
+              "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to bottom, transparent 0%, black 3%, black 97%, transparent 100%)",
+          }}
+        >
+          <MapClientShell />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          FOOTER
+      ══════════════════════════════════════════ */}
+      <footer style={{ padding: "4rem 0", borderTop: "1px solid var(--c-600)", marginTop: "5rem" }}>
+        <div className="section-inner">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+            <div>
+              <p className="t-small" style={{ color: "var(--c-gold)", fontWeight: 600, marginBottom: "0.25rem" }}>
+                Elephant Conservation
+              </p>
+              <p className="t-mono">Field Intelligence Platform</p>
+            </div>
+            <nav style={{ display: "flex", gap: "1.5rem" }}>
+              {["#overview", "#separator", "#voice", "#map"].map((href) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="t-small"
+                  style={{ textTransform: "capitalize" }}
+                >
+                  {href.replace("#", "")}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
-

@@ -46,7 +46,14 @@ function WaveBars({ activity }: { activity: number }) {
 
 export function SoundWaveScene({ activity }: { activity: number }) {
   return (
-    <div className="h-80 overflow-hidden rounded-[2rem] border border-white/10 bg-[radial-gradient(circle_at_top,#27452d_0%,#102017_70%)]">
+    <div
+      style={{
+        height: "22rem",
+        overflow: "hidden",
+        background: "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(39,69,45,0.28) 0%, transparent 70%)",
+        position: "relative",
+      }}
+    >
       <Canvas camera={{ position: [0, 2.2, 5.5], fov: 48 }}>
         <ambientLight intensity={1.2} />
         <directionalLight position={[4, 6, 4]} intensity={1.8} />

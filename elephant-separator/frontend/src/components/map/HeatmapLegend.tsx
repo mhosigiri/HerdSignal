@@ -26,75 +26,162 @@ function isLegendItemValid(item: unknown): item is HeatmapLegendItem {
 }
 
 function formatLegendLabel(item: HeatmapLegendItem): string {
-  const parts = [item.label];
-  if (item.min != null && item.max != null) {
-    parts.push(`${item.min} – ${item.max}`);
-  } else if (item.min != null) {
-    parts.push(`≥ ${item.min}`);
-  } else if (item.max != null) {
-    parts.push(`≤ ${item.max}`);
-  }
-  return parts.join(" · ");
+  if (item.min != null && item.max != null) return `${item.min} – ${item.max}`;
+  if (item.min != null) return `≥ ${item.min}`;
+  if (item.max != null) return `≤ ${item.max}`;
+  return item.label;
 }
 
 function metricTitle(metric: HeatmapMetric): string {
   switch (metric) {
-    case "population":
-      return "Population (est. elephants)";
-    case "elephantType":
-      return "Dominant elephant type";
-    case "lifeExpectancy":
-      return "Life expectancy (years)";
-    case "poachingRate":
-      return "Poaching pressure (index)";
-    default:
-      return "Heatmap";
+    case "population":      return "Population (est. elephants)";
+    case "elephantType":    return "Dominant elephant type";
+    case "lifeExpectancy":  return "Life expectancy (years)";
+    case "poachingRate":    return "Poaching pressure (index)";
+    default:                return "Legend";
   }
 }
 
 type Props = { selectedMetric: HeatmapMetric | null };
 
 export default function HeatmapLegend({ selectedMetric }: Props) {
-  if (selectedMetric === null || !isValidMetric(selectedMetric)) {
+  if (!selectedMetric || !isValidMetric(selectedMetric)) {
     return (
-      <div className="pointer-events-auto max-w-[13rem] rounded-2xl border border-white/[0.06] bg-white/[0.04] px-2.5 py-2 text-[10px] leading-snug text-stone-500 shadow-[0_4px_24px_rgba(0,0,0,0.2)] backdrop-blur-md">
-        {selectedMetric === null
-          ? "Select a metric to view data"
-          : "No legend for this metric."}
+      <div
+        className="pointer-events-auto"
+        style={{
+          background: "rgba(0,0,0,0.55)",
+          backdropFilter: "blur(20px) saturate(1.6)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+          borderRadius: "1rem",
+          border: "1px solid rgba(255,255,255,0.07)",
+          padding: "0.75rem 0.875rem",
+          minWidth: "10rem",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "0.6875rem",
+            color: "rgba(255,255,255,0.25)",
+            letterSpacing: "0.01em",
+          }}
+        >
+          Select a metric to view legend
+        </p>
       </div>
     );
   }
 
-  const raw = getMetricLegendItems(selectedMetric);
-  const items = raw.filter(isLegendItemValid);
+  const items = getMetricLegendItems(selectedMetric).filter(isLegendItemValid);
+
   if (items.length === 0) {
     return (
-      <div className="pointer-events-auto max-w-[13rem] rounded-2xl border border-white/[0.06] bg-white/[0.04] px-2.5 py-2 text-[10px] text-stone-500 backdrop-blur-md">
-        Legend unavailable.
+      <div
+        className="pointer-events-auto"
+        style={{
+          background: "rgba(0,0,0,0.55)",
+          backdropFilter: "blur(20px) saturate(1.6)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+          borderRadius: "1rem",
+          border: "1px solid rgba(255,255,255,0.07)",
+          padding: "0.75rem 0.875rem",
+          minWidth: "10rem",
+        }}
+      >
+        <p style={{ fontSize: "0.6875rem", color: "rgba(255,255,255,0.25)" }}>
+          Legend unavailable
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="pointer-events-auto max-w-[12.5rem] rounded-2xl border border-white/[0.06] bg-white/[0.05] px-2.5 py-2 text-stone-200 shadow-[0_6px_28px_rgba(0,0,0,0.28)] backdrop-blur-md">
-      <p className="mb-1.5 text-[9px] font-medium uppercase tracking-[0.2em] text-stone-500">
-        {metricTitle(selectedMetric)}
-      </p>
-      <ul className="space-y-1">
+    <div
+      className="pointer-events-auto"
+      style={{
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(20px) saturate(1.6)",
+        WebkitBackdropFilter: "blur(20px) saturate(1.6)",
+        borderRadius: "1rem",
+        border: "1px solid rgba(255,255,255,0.07)",
+        overflow: "hidden",
+        minWidth: "10rem",
+      }}
+    >
+      {/* Legend header */}
+      <div
+        style={{
+          padding: "0.625rem 0.875rem 0.5rem",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "0.5625rem",
+            fontWeight: 600,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "rgba(210,162,79,0.6)",
+            fontFamily: "var(--font-mono), monospace",
+          }}
+        >
+          {metricTitle(selectedMetric)}
+        </p>
+      </div>
+
+      {/* Legend rows — vertical stack */}
+      <div style={{ padding: "0.5rem 0" }}>
         {items.map((item) => (
-          <li
+          <div
             key={`${item.label}-${item.color}`}
-            className="flex items-start gap-2 text-[10px] leading-tight"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.625rem",
+              padding: "0.35rem 0.875rem",
+            }}
           >
+            {/* Color swatch — wider bar feel */}
             <span
-              className="mt-0.5 h-2.5 w-3.5 shrink-0 rounded-[3px] ring-1 ring-white/10"
-              style={{ backgroundColor: item.color }}
               aria-hidden
+              style={{
+                width: "18px",
+                height: "10px",
+                borderRadius: "3px",
+                background: item.color,
+                flexShrink: 0,
+                opacity: 0.9,
+              }}
             />
-            <span className="text-stone-300/95">{formatLegendLabel(item)}</span>
-          </li>
+            {/* Label */}
+            <span
+              style={{
+                fontSize: "0.6875rem",
+                color: "rgba(255,255,255,0.6)",
+                lineHeight: 1.35,
+                letterSpacing: "0.01em",
+              }}
+            >
+              {item.label}
+            </span>
+            {/* Range value */}
+            {(item.min != null || item.max != null) && (
+              <span
+                style={{
+                  fontSize: "0.5625rem",
+                  color: "rgba(255,255,255,0.28)",
+                  marginLeft: "auto",
+                  fontFamily: "var(--font-mono), monospace",
+                  letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {formatLegendLabel(item)}
+              </span>
+            )}
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

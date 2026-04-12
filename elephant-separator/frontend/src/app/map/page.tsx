@@ -2,8 +2,8 @@ import MapClientShell from "@/components/map/MapClientShell";
 
 export default function MapPage() {
   return (
-    <main className="w-full h-screen overflow-hidden">
+    <div style={{ paddingTop: "3.5rem", height: "100svh", background: "#000", overflow: "hidden" }}>
       <MapClientShell />
-    </main>
+    </div>
   );
 }

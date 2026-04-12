@@ -11,79 +11,117 @@ export function VoiceMode() {
   const { isListening, response, setListening, setResponse, setTranscript, transcript } =
     useVoiceStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const submitPrompt = async () => {
+    if (!transcript.trim()) return;
     setIsSubmitting(true);
-    const result = await explainVoicePrompt(transcript);
-    setResponse(result.response);
-    setIsSubmitting(false);
+    setError(null);
+    try {
+      const result = await explainVoicePrompt(transcript);
+      setTranscript(result.transcript);
+      setResponse(result.response);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Voice request failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-      <div className="space-y-6 rounded-[2rem] border border-stone-200/80 bg-[#f7f1e6] p-6 shadow-[0_20px_80px_rgba(56,44,29,0.08)]">
-        <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-stone-500">Voice mode</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-stone-900">
-            Conversational conservation layer
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-600">
-            This interface is ready for Whisper transcription, Supabase-backed facts, and TTS response streaming. For now it uses a local mock explanation path.
-          </p>
-        </div>
+    <div>
+      {/* ── Intro ── */}
+      <p className="t-eyebrow" style={{ marginBottom: "0.75rem" }}>Voice mode</p>
+      <h2 className="t-h2" style={{ marginBottom: "1rem" }}>
+        Conversational conservation layer
+      </h2>
+      <p className="t-body" style={{ maxWidth: "52ch", marginBottom: "3rem" }}>
+        Text prompts route through the backend voice API so you can swap models or providers
+        without touching the client.
+      </p>
 
-        <div className="rounded-[1.75rem] bg-white p-5">
-          <label className="block text-sm font-medium text-stone-800">
-            Prompt or transcript
-            <textarea
-              value={transcript}
-              onChange={(event) => setTranscript(event.target.value)}
-              rows={5}
-              className="mt-3 w-full rounded-2xl border border-stone-300 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-[#27452d]"
-            />
-          </label>
-
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => setListening(!isListening)}
-              className={`rounded-full px-5 py-3 text-sm font-medium ${
-                isListening
-                  ? "bg-[#d76848] text-white"
-                  : "bg-[#27452d] text-stone-50"
-              }`}
-            >
-              {isListening ? "Stop listening" : "Simulate listening"}
-            </button>
-            <button
-              type="button"
-              onClick={submitPrompt}
-              disabled={isSubmitting}
-              className="rounded-full border border-stone-300 px-5 py-3 text-sm font-medium text-stone-700 disabled:opacity-50"
-            >
-              {isSubmitting ? "Generating" : "Generate response"}
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-[1.75rem] bg-[#112217] p-5 text-stone-100">
-          <p className="text-xs uppercase tracking-[0.28em] text-stone-400">Narration draft</p>
-          <p className="mt-3 text-sm leading-7 text-stone-200">{response}</p>
-        </div>
+      {/* ── 3D wave ── */}
+      <div style={{ marginBottom: "3rem" }}>
+        <SoundWaveScene activity={isListening ? 0.9 : 0.35} />
       </div>
 
-      <div className="space-y-6">
-        <SoundWaveScene activity={isListening ? 0.9 : 0.35} />
-        <div className="rounded-[2rem] border border-white/10 bg-[#102017] p-6 text-stone-100 shadow-[0_24px_80px_rgba(8,18,14,0.35)]">
-          <p className="text-xs uppercase tracking-[0.28em] text-stone-400">Next service hooks</p>
-          <ul className="mt-4 space-y-3 text-sm leading-6 text-stone-300">
-            <li>Whisper or Realtime input for speech capture.</li>
-            <li>Supabase queries for habitat, incidents, and audio metadata.</li>
-            <li>TTS or narrated summaries after factual retrieval.</li>
-          </ul>
+      {/* ── Input ── */}
+      <div style={{ marginBottom: "2rem" }}>
+        <p className="t-small" style={{ color: "var(--c-200)", fontWeight: 500, marginBottom: "0.75rem" }}>
+          Prompt or transcript
+        </p>
+        <textarea
+          value={transcript}
+          onChange={(e) => setTranscript(e.target.value)}
+          rows={5}
+          placeholder="Ask a conservation or elephant-audio question…"
+          className="field"
+          style={{ resize: "vertical" }}
+        />
+        {error && (
+          <p className="t-small" style={{ color: "var(--c-ember)", marginTop: "0.5rem" }}>
+            {error}
+          </p>
+        )}
+      </div>
+
+      {/* ── Actions ── */}
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "3rem" }}>
+        <button
+          type="button"
+          onClick={() => setListening(!isListening)}
+          className="btn"
+          style={{
+            background: isListening ? "var(--c-ember)" : "var(--c-white)",
+            color: isListening ? "var(--c-white)" : "var(--c-void)",
+            borderRadius: "9999px",
+          }}
+        >
+          {isListening ? "Stop listening" : "Simulate listening"}
+        </button>
+        <button
+          type="button"
+          onClick={submitPrompt}
+          disabled={isSubmitting}
+          className="btn btn-ghost"
+        >
+          {isSubmitting ? "Generating…" : "Generate response"}
+        </button>
+      </div>
+
+      {/* ── Response ── */}
+      {response && (
+        <div style={{ borderTop: "1px solid var(--c-600)", paddingTop: "2rem" }}>
+          <p className="t-eyebrow" style={{ marginBottom: "1rem" }}>Narration draft</p>
+          <p className="t-body" style={{ maxWidth: "65ch", lineHeight: 1.85 }}>
+            {response}
+          </p>
         </div>
+      )}
+
+      {/* ── Coming soon ── */}
+      <div style={{ marginTop: "3rem", borderTop: "1px solid var(--c-600)", paddingTop: "2rem" }}>
+        <p className="t-eyebrow" style={{ marginBottom: "1.25rem" }}>Next service hooks</p>
+        <ul style={{ display: "flex", flexDirection: "column", gap: "0.875rem" }}>
+          {[
+            "Whisper or Realtime input for speech capture.",
+            "Supabase queries for habitat, incidents, and audio metadata.",
+            "TTS or narrated summaries after factual retrieval.",
+          ].map((item) => (
+            <li key={item} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+              <span style={{
+                width: "5px",
+                height: "5px",
+                borderRadius: "50%",
+                background: "var(--c-gold)",
+                flexShrink: 0,
+                marginTop: "0.55rem",
+              }} />
+              <span className="t-body">{item}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 }
-

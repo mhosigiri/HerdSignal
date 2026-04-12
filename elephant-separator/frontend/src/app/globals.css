@@ -1,31 +1,71 @@
 @import "tailwindcss";
 
+/* ─── Primitive brand tokens ──────────────────────────────────────────────── */
 :root {
+  /* Core blacks */
+  --c-void:    #000000;
+  --c-base:    #080808;
+  --c-surface: #0f0f0f;
+  --c-raise:   #161616;
+  --c-lift:    #1e1e1e;
+  --c-mute:    #2a2a2a;
+
+  /* Whites / grays */
+  --c-white:   #ffffff;
+  --c-100:     rgba(255,255,255,0.92);
+  --c-200:     rgba(255,255,255,0.72);
+  --c-300:     rgba(255,255,255,0.50);
+  --c-400:     rgba(255,255,255,0.32);
+  --c-500:     rgba(255,255,255,0.16);
+  --c-600:     rgba(255,255,255,0.08);
+  --c-700:     rgba(255,255,255,0.04);
+
+  /* Domain accent — conservation green */
+  --c-green:        #27452d;
+  --c-green-mid:    #3a6642;
+  --c-green-bright: #5d8b63;
+  --c-green-glow:   rgba(39,69,45,0.35);
+
+  /* Domain accent — gold */
+  --c-gold:       #d2a24f;
+  --c-gold-dim:   rgba(210,162,79,0.55);
+  --c-gold-ghost: rgba(210,162,79,0.12);
+
+  /* Ember / warning */
+  --c-ember: #d76848;
+
+  /* Semantic font vars */
   --font-sans: var(--font-display);
-  --font-mono: var(--font-mono);
-  --background: #f8f5ef;
-  --foreground: #1b1a16;
+  --font-mono: var(--font-mono-var);
 }
 
 @theme inline {
   --font-sans: var(--font-display);
-  --font-mono: var(--font-mono);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --font-mono: var(--font-mono-var);
+  --color-background: var(--c-base);
+  --color-foreground: var(--c-white);
 }
 
-* {
+/* ─── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
-  background: var(--background);
+  background: var(--c-void);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
+  background: var(--c-void);
+  color: var(--c-100);
+  font-family: var(--font-sans), -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   min-height: 100vh;
-  color: var(--foreground);
-  font-family: var(--font-display), sans-serif;
+  overflow-x: hidden;
 }
 
 a {
@@ -33,14 +73,231 @@ a {
   text-decoration: none;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
   font: inherit;
 }
 
 ::selection {
-  background: rgba(210, 162, 79, 0.35);
+  background: var(--c-gold-ghost);
+  color: var(--c-gold);
 }
 
+/* ─── Typography scale ────────────────────────────────────────────────────── */
+.t-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--c-300);
+}
+
+.t-hero {
+  font-size: clamp(2.6rem, 7vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
+  color: var(--c-white);
+}
+
+.t-h2 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--c-white);
+}
+
+.t-h3 {
+  font-size: clamp(1.2rem, 2.5vw, 1.875rem);
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1.2;
+  color: var(--c-100);
+}
+
+.t-body {
+  font-size: 1rem;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+  color: var(--c-300);
+}
+
+.t-small {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--c-300);
+}
+
+.t-mono {
+  font-family: var(--font-mono), "SF Mono", "Menlo", monospace;
+  font-size: 0.8125rem;
+  color: var(--c-400);
+}
+
+/* ─── Section scaffold ────────────────────────────────────────────────────── */
+.section {
+  width: 100%;
+  padding: 7rem 0;
+}
+
+.section-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (min-width: 640px) {
+  .section-inner { padding: 0 3rem; }
+}
+
+@media (min-width: 1024px) {
+  .section-inner { padding: 0 5rem; }
+}
+
+/* ─── Divider lines ───────────────────────────────────────────────────────── */
+.section-rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--c-500) 30%, var(--c-500) 70%, transparent 100%);
+}
+
+/* ─── Input / textarea base ───────────────────────────────────────────────── */
+.field {
+  width: 100%;
+  background: var(--c-raise);
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.1rem;
+  color: var(--c-100);
+  font-size: 0.9375rem;
+  outline: none;
+  transition: box-shadow 0.15s ease;
+}
+
+.field::placeholder {
+  color: var(--c-400);
+}
+
+.field:focus {
+  box-shadow: 0 0 0 1px var(--c-gold-dim);
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  padding: 0.75rem 1.75rem;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  border: none;
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--c-white);
+  color: var(--c-void);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--c-200);
+}
+
+.btn-ghost {
+  background: var(--c-600);
+  color: var(--c-200);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--c-500);
+}
+
+.btn-gold {
+  background: var(--c-gold);
+  color: var(--c-void);
+}
+
+.btn-gold:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* ─── Metric tiles ────────────────────────────────────────────────────────── */
+.metric-tile {
+  padding: 2rem 0;
+}
+
+.metric-tile + .metric-tile {
+  border-top: 1px solid var(--c-600);
+}
+
+/* ─── Progress bar ────────────────────────────────────────────────────────── */
+.progress-track {
+  height: 2px;
+  background: var(--c-600);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-green-bright), var(--c-gold));
+  transition: width 0.4s ease;
+  border-radius: 9999px;
+}
+
+/* ─── Audio player ────────────────────────────────────────────────────────── */
+audio {
+  width: 100%;
+  accent-color: var(--c-gold);
+  filter: invert(0);
+}
+
+/* ─── Spectrogram glow ────────────────────────────────────────────────────── */
+.spec-wrap {
+  border-radius: 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Responsive grid helpers ────────────────────────────────────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 640px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem 4rem;
+}
+
+@media (max-width: 900px) {
+  .chart-grid {
+    grid-template-columns: 1fr;
+    gap: 4rem;
+  }
+  .chart-grid-full {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-mute); border-radius: 9999px; }
