@@ -23,6 +23,10 @@ function getMetricValue(
       return row.lifeExpectancy;
     case "poachingRate":
       return row.poachingRate;
+    case "conservationStatus":
+      return row.conservationStatus;
+    case "populationTrend":
+      return row.populationTrendLabel ?? row.populationTrend;
     default:
       return undefined;
   }
@@ -38,6 +42,10 @@ function metricHeading(metric: HeatmapMetric): string {
       return "Life expectancy";
     case "poachingRate":
       return "Poaching pressure";
+    case "conservationStatus":
+      return "Conservation status";
+    case "populationTrend":
+      return "Population trend";
     default:
       return "Metric";
   }
@@ -296,11 +304,11 @@ export default function CountryInsightCard({
           </p>
           <p
             style={{
-              fontSize: "1.375rem",
+              fontSize: (selectedMetric === "populationTrend" || selectedMetric === "conservationStatus") ? "0.875rem" : "1.375rem",
               fontWeight: 600,
               letterSpacing: "-0.025em",
               color: "rgba(255,255,255,0.92)",
-              lineHeight: 1,
+              lineHeight: 1.3,
             }}
           >
             {valueLabel}

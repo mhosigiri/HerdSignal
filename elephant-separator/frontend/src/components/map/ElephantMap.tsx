@@ -140,6 +140,10 @@ function getMetricValue(
       return row.lifeExpectancy;
     case "poachingRate":
       return row.poachingRate;
+    case "conservationStatus":
+      return row.conservationStatus;
+    case "populationTrend":
+      return row.populationTrend;
     default:
       return undefined;
   }
@@ -254,6 +258,7 @@ export default function ElephantMap() {
       zoom: MAP_ZOOM,
       bearing: MAP_BEARING,
       pitch: MAP_PITCH,
+      minZoom: MAP_ZOOM, // cannot zoom out past the initial world view
     });
     mapRef.current = map;
 

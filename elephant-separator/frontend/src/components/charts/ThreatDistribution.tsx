@@ -1,10 +1,27 @@
 "use client";
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useEffect, useState } from "react";
 
 import type { ThreatDatum } from "@/types/elephant";
 
 export function ThreatDistribution({ data }: { data: ThreatDatum[] }) {
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const check = () => {
+      setIsDark(document.documentElement.getAttribute("data-theme") !== "light");
+    };
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, []);
+
+  const tooltipBg = isDark ? "#161616" : "#ffffff";
+  const tooltipBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+  const tooltipColor = isDark ? "#fff" : "#1b1a16";
+
   return (
     <div>
       <p className="t-eyebrow" style={{ marginBottom: "0.5rem" }}>Threat mix</p>
@@ -26,10 +43,10 @@ export function ThreatDistribution({ data }: { data: ThreatDatum[] }) {
             </Pie>
             <Tooltip
               contentStyle={{
-                background: "#161616",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: tooltipBg,
+                border: `1px solid ${tooltipBorder}`,
                 borderRadius: "0.75rem",
-                color: "#fff",
+                color: tooltipColor,
                 fontSize: "0.8125rem",
               }}
             />

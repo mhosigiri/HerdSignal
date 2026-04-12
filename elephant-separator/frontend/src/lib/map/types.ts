@@ -3,7 +3,9 @@ export type HeatmapMetric =
   | "population"
   | "elephantType"
   | "lifeExpectancy"
-  | "poachingRate";
+  | "poachingRate"
+  | "conservationStatus"
+  | "populationTrend";
 
 /** Species / category label for country-level elephant metrics. */
 export type ElephantType =
@@ -15,6 +17,12 @@ export type ElephantType =
 
 /** Values passed into color/format helpers for any metric column. */
 export type HeatmapMetricValue = number | ElephantType | null | undefined;
+
+/** IUCN Red List status codes. */
+export type IucnStatusCode = "CR" | "EN" | "VU" | "NT" | "LC" | "DD" | "EW" | "EX" | "Unknown";
+
+/** Population trend direction values. */
+export type TrendDirection = "UP" | "DOWN" | "FLAT" | "UNKNOWN";
 
 /** Country-level metric row; join to GeoJSON via `isoCode` / `geometryRef`. */
 export type MapCountryMetric = {
@@ -28,6 +36,9 @@ export type MapCountryMetric = {
   elephantType?: ElephantType;
   lifeExpectancy?: number;
   poachingRate?: number;
+  conservationStatus?: IucnStatusCode;
+  populationTrend?: TrendDirection;
+  populationTrendLabel?: string;
 };
 
 /** Expected shape of GeoJSON feature `properties` for country boundaries (Natural Earth). */

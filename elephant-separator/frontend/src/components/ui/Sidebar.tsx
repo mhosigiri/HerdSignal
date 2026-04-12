@@ -35,7 +35,7 @@ export function Sidebar() {
             className="text-heading-4 leading-tight"
             style={{ color: "var(--sem-fg-on-dark)" }}
           >
-            Field Intelligence
+            Herd Signal
           </h1>
           <p
             className="text-small leading-relaxed"

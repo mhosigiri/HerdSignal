@@ -52,3 +52,9 @@ elephant-separator/results/spectrograms/*
 elephant-separator/results/*_manifest.csv
 !elephant-separator/data/recordings/.gitkeep
 !elephant-separator/data/noise_samples/.gitkeep
+
+.opencode
+.openclaw
+.claude
+design_ref_images/
+config/

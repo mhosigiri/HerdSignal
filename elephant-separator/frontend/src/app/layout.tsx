@@ -19,8 +19,12 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Elephant Conservation Platform",
+  title: "Herd Signal",
   description: "Maps, audio separation, and voice exploration for elephant conservation workflows.",
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png", sizes: "512x512" }],
+    apple: [{ url: "/favicon.png", sizes: "512x512" }],
+  },
 };
 
 export default function RootLayout({

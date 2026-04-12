@@ -8,6 +8,8 @@ const METRICS: HeatmapMetric[] = [
   "elephantType",
   "lifeExpectancy",
   "poachingRate",
+  "conservationStatus",
+  "populationTrend",
 ];
 
 function isValidMetric(m: unknown): m is HeatmapMetric {
@@ -34,11 +36,13 @@ function formatLegendLabel(item: HeatmapLegendItem): string {
 
 function metricTitle(metric: HeatmapMetric): string {
   switch (metric) {
-    case "population":      return "Population (est. elephants)";
-    case "elephantType":    return "Dominant elephant type";
-    case "lifeExpectancy":  return "Life expectancy (years)";
-    case "poachingRate":    return "Poaching pressure (index)";
-    default:                return "Legend";
+    case "population":          return "Population (est. elephants)";
+    case "elephantType":        return "Dominant elephant type";
+    case "lifeExpectancy":      return "Life expectancy (years)";
+    case "poachingRate":        return "Poaching pressure (index)";
+    case "conservationStatus":  return "IUCN conservation status";
+    case "populationTrend":     return "Population trend";
+    default:                    return "Legend";
   }
 }
 

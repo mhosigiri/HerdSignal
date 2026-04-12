@@ -3,10 +3,12 @@
 import type { HeatmapMetric, HeatmapToggleOption } from "@/lib/map/types";
 
 const DEFAULT_OPTIONS: HeatmapToggleOption[] = [
-  { label: "Population",       metric: "population" },
-  { label: "Elephant type",    metric: "elephantType" },
-  { label: "Life expectancy",  metric: "lifeExpectancy" },
-  { label: "Poaching rate",    metric: "poachingRate" },
+  { label: "Population",          metric: "population" },
+  { label: "Elephant type",       metric: "elephantType" },
+  { label: "Life expectancy",     metric: "lifeExpectancy" },
+  { label: "Poaching rate",       metric: "poachingRate" },
+  { label: "Conservation status", metric: "conservationStatus" },
+  { label: "Population trend",    metric: "populationTrend" },
 ];
 
 const METRICS: HeatmapMetric[] = [
@@ -14,13 +16,17 @@ const METRICS: HeatmapMetric[] = [
   "elephantType",
   "lifeExpectancy",
   "poachingRate",
+  "conservationStatus",
+  "populationTrend",
 ];
 
 const METRIC_ICONS: Record<HeatmapMetric, string> = {
-  population:      "◉",
-  elephantType:    "◈",
-  lifeExpectancy:  "◎",
-  poachingRate:    "◆",
+  population:          "◉",
+  elephantType:        "◈",
+  lifeExpectancy:      "◎",
+  poachingRate:        "◆",
+  conservationStatus:  "◍",
+  populationTrend:     "◬",
 };
 
 function isValidMetric(v: unknown): v is HeatmapMetric {

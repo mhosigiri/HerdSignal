@@ -2,7 +2,9 @@ import type {
   ElephantType,
   HeatmapLegendItem,
   HeatmapMetric,
+  IucnStatusCode,
   MapCountryMetric,
+  TrendDirection,
 } from "./types";
 
 /** Muted fill for missing/invalid data — visible but not loud on dark basemaps. */
@@ -26,6 +28,25 @@ const ELEPHANT_TYPE_COLORS: Record<ElephantType, string> = {
   Asian: "#2563eb",
   Mixed: "#9333ea",
   Unknown: HEATMAP_FALLBACK_COLOR,
+};
+
+const IUCN_STATUS_COLORS: Record<IucnStatusCode, string> = {
+  EX: "#1a1a1a",   // Extinct — near-black
+  EW: "#3b1f1f",   // Extinct in Wild — dark red
+  CR: "#ef4444",   // Critically Endangered — red
+  EN: "#f97316",   // Endangered — orange
+  VU: "#eab308",   // Vulnerable — yellow
+  NT: "#84cc16",   // Near Threatened — lime
+  LC: "#22c55e",   // Least Concern — green
+  DD: "#6b7280",   // Data Deficient — gray
+  Unknown: HEATMAP_FALLBACK_COLOR,
+};
+
+const TREND_DIRECTION_COLORS: Record<TrendDirection, string> = {
+  UP: "#22c55e",      // Increasing — green
+  FLAT: "#eab308",    // Stable — yellow
+  DOWN: "#ef4444",    // Declining — red
+  UNKNOWN: HEATMAP_FALLBACK_COLOR,
 };
 
 function num(v: unknown): number | null {
@@ -66,6 +87,22 @@ export function getMetricColor(metric: HeatmapMetric, value: unknown): string {
     const s = String(value);
     if (s in ELEPHANT_TYPE_COLORS) {
       return ELEPHANT_TYPE_COLORS[s as ElephantType];
+    }
+    return HEATMAP_FALLBACK_COLOR;
+  }
+
+  if (metric === "conservationStatus") {
+    const s = String(value) as IucnStatusCode;
+    if (s in IUCN_STATUS_COLORS) {
+      return IUCN_STATUS_COLORS[s];
+    }
+    return HEATMAP_FALLBACK_COLOR;
+  }
+
+  if (metric === "populationTrend") {
+    const s = String(value) as TrendDirection;
+    if (s in TREND_DIRECTION_COLORS) {
+      return TREND_DIRECTION_COLORS[s];
     }
     return HEATMAP_FALLBACK_COLOR;
   }
@@ -115,6 +152,22 @@ export function getMetricLegendItems(metric: HeatmapMetric): HeatmapLegendItem[]
           color: ELEPHANT_TYPE_COLORS[t],
         }),
       );
+    case "conservationStatus":
+      return [
+        { label: "Critically Endangered (CR)", color: IUCN_STATUS_COLORS.CR },
+        { label: "Endangered (EN)",            color: IUCN_STATUS_COLORS.EN },
+        { label: "Vulnerable (VU)",            color: IUCN_STATUS_COLORS.VU },
+        { label: "Near Threatened (NT)",       color: IUCN_STATUS_COLORS.NT },
+        { label: "Least Concern (LC)",         color: IUCN_STATUS_COLORS.LC },
+        { label: "Data Deficient (DD)",        color: IUCN_STATUS_COLORS.DD },
+      ];
+    case "populationTrend":
+      return [
+        { label: "Increasing",  color: TREND_DIRECTION_COLORS.UP },
+        { label: "Stable",      color: TREND_DIRECTION_COLORS.FLAT },
+        { label: "Declining",   color: TREND_DIRECTION_COLORS.DOWN },
+        { label: "Unknown",     color: TREND_DIRECTION_COLORS.UNKNOWN },
+      ];
     default:
       return [
         {

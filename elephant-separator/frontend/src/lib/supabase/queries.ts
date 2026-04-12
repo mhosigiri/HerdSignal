@@ -7,7 +7,7 @@
  */
 import { alpha2ToAlpha3 } from "i18n-iso-countries";
 
-import type { ElephantType, MapCountryMetric } from "@/lib/map/types";
+import type { ElephantType, IucnStatusCode, MapCountryMetric, TrendDirection } from "@/lib/map/types";
 
 import { getSupabaseBrowserClient } from "./client";
 
@@ -68,6 +68,8 @@ function rowHasAnyMetric(row: MapCountryMetric): boolean {
   if (row.lifeExpectancy != null) return true;
   if (row.poachingRate != null) return true;
   if (row.elephantType != null && row.elephantType !== "Unknown") return true;
+  if (row.conservationStatus != null && row.conservationStatus !== "Unknown") return true;
+  if (row.populationTrend != null && row.populationTrend !== "UNKNOWN") return true;
   return false;
 }
 
@@ -112,6 +114,18 @@ type ThreatRow = {
   elephants_killed: number | null;
 };
 
+type ConservationStatusRow = {
+  region_id: string | null;
+  iucn_status_code: string | null;
+  iucn_status: string | null;
+};
+
+type PopulationTrendRow = {
+  region_id: string | null;
+  overall_trend: string | null;
+  trend_direction: string | null;
+};
+
 async function selectAll<T>(table: string, columns: string): Promise<T[]> {
   const supabase = getSupabaseBrowserClient();
   const pageSize = 1000;
@@ -141,7 +155,15 @@ async function selectAll<T>(table: string, columns: string): Promise<T[]> {
 export async function fetchHeatmapData(): Promise<MapCountryMetric[]> {
   const supabase = getSupabaseBrowserClient();
 
-  const [{ data: regionsData, error: regionsError }, speciesList, popList, corridorList, threatList] =
+  const [
+    { data: regionsData, error: regionsError },
+    speciesList,
+    popList,
+    corridorList,
+    threatList,
+    conservationStatusList,
+    populationTrendList,
+  ] =
     await Promise.all([
       supabase
         .from("regions")
@@ -161,6 +183,14 @@ export async function fetchHeatmapData(): Promise<MapCountryMetric[]> {
       selectAll<ThreatRow>(
         "threat_incidents",
         "region_id, severity, elephants_killed",
+      ),
+      selectAll<ConservationStatusRow>(
+        "elephant_conservation_status",
+        "region_id, iucn_status_code, iucn_status",
+      ),
+      selectAll<PopulationTrendRow>(
+        "elephant_population_trend",
+        "region_id, overall_trend, trend_direction",
       ),
     ]);
 
@@ -236,6 +266,30 @@ export async function fetchHeatmapData(): Promise<MapCountryMetric[]> {
     arr.push(sev);
   }
 
+  /** Conservation status: pick first row per region_id */
+  const conservationByRegion = new Map<string, ConservationStatusRow>();
+  for (const c of conservationStatusList) {
+    if (!c.region_id) continue;
+    if (!conservationByRegion.has(c.region_id)) {
+      conservationByRegion.set(c.region_id, c);
+    }
+  }
+
+  /** Population trend: pick first row per region_id */
+  const trendByRegion = new Map<string, PopulationTrendRow>();
+  for (const t of populationTrendList) {
+    if (!t.region_id) continue;
+    if (!trendByRegion.has(t.region_id)) {
+      trendByRegion.set(t.region_id, t);
+    }
+  }
+
+  const VALID_IUCN = new Set<IucnStatusCode>([
+    "CR", "EN", "VU", "NT", "LC", "DD", "EW", "EX", "Unknown",
+  ]);
+
+  const VALID_TREND = new Set<TrendDirection>(["UP", "DOWN", "FLAT", "UNKNOWN"]);
+
   const byIso = new Map<string, MapCountryMetric>();
 
   for (const r of regions) {
@@ -298,6 +352,21 @@ export async function fetchHeatmapData(): Promise<MapCountryMetric[]> {
       row.poachingRate = roundTwoDecimalPlaces(
         Math.min(10, Math.max(0, avg * 1.15)),
       );
+    }
+
+    const cons = conservationByRegion.get(r.id);
+    if (cons) {
+      const code = String(cons.iucn_status_code ?? "Unknown").trim() as IucnStatusCode;
+      row.conservationStatus = VALID_IUCN.has(code) ? code : "Unknown";
+    }
+
+    const trend = trendByRegion.get(r.id);
+    if (trend) {
+      const dir = String(trend.trend_direction ?? "UNKNOWN").trim() as TrendDirection;
+      row.populationTrend = VALID_TREND.has(dir) ? dir : "UNKNOWN";
+      if (trend.overall_trend) {
+        row.populationTrendLabel = trend.overall_trend;
+      }
     }
 
     if (!isValidHeatmapRow(row)) continue;

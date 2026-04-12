@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useRef } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 import { useAudioStore } from "@/store/audioStore";
 
@@ -10,6 +10,22 @@ import { SpectrogramView } from "./SpectrogramView";
 
 const NOISE_TYPES = ["vehicle", "airplane", "generator"] as const;
 type NoiseType = (typeof NOISE_TYPES)[number];
+
+const NOISE_KEYWORDS: Record<NoiseType, string[]> = {
+  vehicle: ["vehicle", "car", "cars", "truck", "trucks", "traffic"],
+  airplane: ["airplane", "plane", "aircraft", "jet"],
+  generator: ["generator", "gen", "genset"],
+};
+
+function detectNoiseTypeFromFileName(fileName: string): NoiseType | null {
+  const normalized = fileName.toLowerCase();
+  for (const type of NOISE_TYPES) {
+    if (NOISE_KEYWORDS[type].some((keyword) => normalized.includes(keyword))) {
+      return type;
+    }
+  }
+  return null;
+}
 
 type SeparationResponse = {
   audioDataUrl?: string;
@@ -52,7 +68,8 @@ export function SeparatorPanel() {
   } = useAudioStore();
 
   const processedRef = useRef<string | null>(null);
-  const noiseTypeRef = useRef<NoiseType>("vehicle");
+  const [selectedNoiseType, setSelectedNoiseType] = useState<NoiseType>("vehicle");
+  const [autoDetectedNoiseType, setAutoDetectedNoiseType] = useState<NoiseType | null>(null);
 
   useEffect(() => {
     processedRef.current = processedUrl;
@@ -71,9 +88,18 @@ export function SeparatorPanel() {
     };
   }, [originalUrl]);
 
+  const handleReset = () => {
+    setSelectedNoiseType("vehicle");
+    setAutoDetectedNoiseType(null);
+    reset();
+  };
+
   const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const detectedNoiseType = detectNoiseTypeFromFileName(file.name);
+    setSelectedNoiseType(detectedNoiseType ?? "vehicle");
+    setAutoDetectedNoiseType(detectedNoiseType);
     setUpload({ fileName: file.name, originalUrl: URL.createObjectURL(file) });
   };
 
@@ -87,7 +113,7 @@ export function SeparatorPanel() {
       const blob = await fetch(originalUrl).then((r) => r.blob());
       const form = new FormData();
       form.append("file", blob, fileName);
-      form.append("noise_type", noiseTypeRef.current);
+      form.append("noise_type", selectedNoiseType);
       setProcessing(35);
       const res = await fetch("/api/separate", { method: "POST", body: form });
       setProcessing(75);
@@ -157,19 +183,37 @@ export function SeparatorPanel() {
         <p className="t-small" style={{ color: "var(--c-200)", fontWeight: 500, marginBottom: "0.75rem" }}>
           Background noise type
         </p>
+        <p className="t-small" style={{ color: "var(--c-300)", marginBottom: "0.9rem" }}>
+          Auto-analyze checks the file name and highlights the matching noise source. You can still override it.
+        </p>
         <div style={{ display: "flex", gap: "0.625rem", flexWrap: "wrap" }}>
           {NOISE_TYPES.map((type) => (
             <button
               key={type}
               type="button"
-              onClick={() => { noiseTypeRef.current = type; }}
+              onClick={() => { setSelectedNoiseType(type); }}
               className="btn btn-ghost"
-              style={{ padding: "0.5rem 1.1rem", fontSize: "0.875rem", textTransform: "capitalize" }}
+              aria-pressed={selectedNoiseType === type}
+              style={{
+                padding: "0.5rem 1.1rem",
+                fontSize: "0.875rem",
+                textTransform: "capitalize",
+                borderColor: selectedNoiseType === type ? "rgba(210,162,79,0.65)" : "rgba(255,255,255,0.12)",
+                background: selectedNoiseType === type ? "rgba(210,162,79,0.16)" : "rgba(255,255,255,0.04)",
+                color: selectedNoiseType === type ? "var(--c-gold)" : "rgba(255,255,255,0.76)",
+                boxShadow: selectedNoiseType === type ? "0 0 0 1px rgba(210,162,79,0.2) inset" : "none",
+              }}
             >
               {type}
+              {autoDetectedNoiseType === type ? " · auto" : ""}
             </button>
           ))}
         </div>
+        {autoDetectedNoiseType && (
+          <p className="t-mono" style={{ marginTop: "0.75rem", color: "var(--c-gold)" }}>
+            Auto-analyze matched `{autoDetectedNoiseType}` from the uploaded file name.
+          </p>
+        )}
       </div>
 
       {/* ── Actions ── */}
@@ -182,7 +226,7 @@ export function SeparatorPanel() {
         >
           {isProcessing ? "Separating…" : "Start separation"}
         </button>
-        <button type="button" onClick={reset} className="btn btn-ghost">
+        <button type="button" onClick={handleReset} className="btn btn-ghost">
           Reset
         </button>
       </div>
