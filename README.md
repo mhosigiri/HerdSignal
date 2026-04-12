@@ -1,37 +1,62 @@
-# Elephant Conservation Platform
+# 🐘 Elephant Conservation Platform
 
-A full-stack app we built at HackSMU. It uses signal processing to clean up noisy field recordings and geospatial analysis to track elephant populations and threats.
+> *Listening to the wild, clearing the noise.* A full-stack application built at HackSMU that combines acoustic signal processing and geospatial analysis to support elephant conservation efforts.
 
-## What It Does
+---
 
-**Acoustic Separation:** Field recordings are noisy—think generators, vehicles, and wind. We use Non-negative Matrix Factorization (NMF) to separate elephant calls from the background noise. It's unsupervised, requires no training data, and we validated it on 212 field recordings with a 0.72 match score.
+## 💡 Inspiration
+Monitoring endangered elephant populations often relies on acoustic sensors hidden in their habitats. The problem? The wild is noisy. Field recordings are constantly interrupted by airplanes, vehicles, generators, and weather. We wanted to build a tool that could filter out this human and environmental interference, isolating the true sounds of the savannah while simultaneously tracking the animals on a global scale. 
 
-**Geospatial Heatmaps:** We use PostgreSQL and PostGIS to map elephant populations, poaching incidents, and habitat boundaries. The frontend renders interactive heatmaps so you can see where conservation efforts are needed most across Africa and Asia.
+## ⚙️ What it does
+Our platform tackles conservation from two angles:
+1. **Acoustic Separation:** Users can upload noisy field recordings. Our backend uses Non-negative Matrix Factorization (NMF) to cleanly separate elephant vocalizations from background noise. It's completely unsupervised, requiring no labeled training data.
+2. **Geospatial Heatmaps:** A comprehensive map that visualizes elephant population estimates, poaching incidents, and habitat boundaries across Africa and Asia, helping conservationists identify high-risk zones.
+3. **AI Assistant:** A Groq-powered chat interface built right into the app that can answer questions about the map data and explain the acoustic separation results.
 
-**Frontend:** A Next.js app with Google Maps, real-time charts, 3D elements, and audio playback for the separated calls.
+## 🛠️ How we built it
+We split the architecture into a high-performance audio processing backend and an interactive frontend:
+- **Backend (Audio/API):** Built with Python and FastAPI. The core separation engine uses `NumPy`, `SciPy`, and `librosa` to compute spectrograms, factorize the matrices, and classify frequency-band energy to isolate the elephant calls. 
+- **Frontend:** A Next.js (React) application styled with Tailwind CSS. We integrated Google Maps and Leaflet for the interactive map, Recharts for data visualization, and React Three Fiber for a 3D audio visualizer.
+- **Database:** We used Supabase (PostgreSQL) loaded with the PostGIS extension. By using spatial indexing (GiST), the frontend can rapidly query regions and cluster threat incidents.
 
-**AI Assistant:** A built-in Groq-powered chat interface that answers questions about the map data and separation results.
+## 🚧 Challenges we ran into
+Our biggest hurdle was the audio separation. Training a deep learning model required massive amounts of clean, labeled data that we simply didn't have during a 24-hour hackathon. We pivoted to an unsupervised mathematical approach (NMF) which required intense tuning of our frequency-band energy ratios to ensure we didn't distort the elephant rumbles while removing generator hums. 
 
-## Quick Start (Docker)
+Additionally, rendering continental-scale geospatial data without lagging the browser forced us to deeply optimize our PostGIS queries.
 
-You can run the entire stack (FastAPI backend + Next.js frontend) with one command.
+## 🏆 Accomplishments that we're proud of
+We validated our NMF separation pipeline across **212 actual field recordings**. It achieved a **0.72 match score** against clean reference calls and demonstrated near-zero noise contamination for vehicle and generator interference. We built a fully working, complex math pipeline and wrapped it in a beautiful, accessible UI.
 
-Make sure Docker Desktop is running, then open your terminal and run:
+## 🧠 What we learned
+- How to apply advanced signal processing techniques (STFT, NMF, Spectral Gating) to real-world audio problems.
+- How to structure and index complex geographic data types (`geography(multipolygon, 4326)`) using PostGIS.
+- How to seamlessly connect a Python audio-processing backend with a Next.js frontend using Docker.
+
+## 🚀 What's next
+In the future, we want to optimize our NMF pipeline to run on edge devices (like Raspberry Pi) so it can process audio directly in the field. We also plan to integrate live data feeds from existing conservation IoT networks to make the heatmap update in real-time.
+
+---
+
+## 💻 Quick Start (Docker)
+
+You can spin up the entire project (FastAPI backend + Next.js frontend) with a single command. 
+
+Ensure Docker Desktop is running, then execute:
 
 ```bash
 chmod +x setup_and_run.sh
 ./setup_and_run.sh
 ```
 
-This builds the container image, installs all dependencies, and starts both servers. 
-
-Once it's ready, open:
-- **App:** http://localhost:3000
+Once it builds and starts, access the app:
+- **Web App:** http://localhost:3000
 - **API Docs:** http://localhost:8000/docs
 
-To stop the servers, just press `Ctrl+C`.
+*To stop the servers, just press `Ctrl+C` in your terminal.*
 
-## Tech Stack
+---
+
+## 🧰 Built With
 
 <p align="left">
   <img src="https://img.shields.io/badge/Next.js-000000?style=flat&logo=nextdotjs&logoColor=white" alt="Next.js" />
