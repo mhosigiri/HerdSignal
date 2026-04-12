@@ -10,7 +10,7 @@ You are optimizing an audio source separation model for isolating elephant rumbl
 - loss function
 
 ## What You Cannot Modify
-- data preparation contract
+- `prepare.py` — data preparation contract (spectrograms, dataloaders, evaluate())
 - `TIME_BUDGET`
 - the fixed evaluation interface
 
