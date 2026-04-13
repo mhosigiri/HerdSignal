@@ -1,43 +1,27 @@
 FROM python:3.11.9-slim
 
-# Install Node.js 20 and npm
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y --no-install-recommends nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8080
 
-# Install libsndfile for soundfile/librosa
+# Audio runtime dependencies for librosa / soundfile.
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libsndfile1 ffmpeg && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /app/elephant-separator
 
-# ── Backend dependencies ─────────────────────────────────────────
-COPY elephant-separator/requirements.txt /app/requirements.txt
+# Cloud Run deploys the backend only. requirements.txt is the
+# authoritative runtime dependency manifest for this container build.
+COPY elephant-separator/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir fastapi uvicorn python-multipart
+    pip install --no-cache-dir -r requirements.txt
 
-# ── Frontend dependencies ────────────────────────────────────────
-COPY elephant-separator/frontend/package.json elephant-separator/frontend/package-lock.json* /app/frontend/
-WORKDIR /app/frontend
-RUN npm install --silent
-WORKDIR /app
-
-# ── Copy source code ─────────────────────────────────────────────
-COPY elephant-separator/ /app/
-
-# ── Copy .env.example as fallback if .env doesn't exist ──────────
-RUN if [ ! -f /app/frontend/.env ] && [ -f /app/frontend/.env.example ]; then \
-        cp /app/frontend/.env.example /app/frontend/.env; \
-    fi
-
-EXPOSE 8000 3000
-
-# ── Entrypoint: run both servers ─────────────────────────────────
+COPY elephant-separator/api_server.py ./api_server.py
+COPY elephant-separator/src ./src
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+EXPOSE 8080
 
 CMD ["/app/entrypoint.sh"]

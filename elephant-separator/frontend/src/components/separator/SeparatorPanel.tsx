@@ -155,7 +155,7 @@ export function SeparatorPanel() {
         Upload and isolate elephant calls
       </h2>
       <p className="t-body" style={{ maxWidth: "52ch", marginBottom: "3rem" }}>
-        Sends the recording to the local Python separator, runs the tuned NMF baseline, and
+        Sends the recording to the separator API, runs the tuned NMF baseline, and
         returns processed audio, spectrograms, and call annotations.
       </p>
 

@@ -5,7 +5,7 @@ deep-learning path. NMF is unsupervised and already proven across 212 files
 with solid matching and low contamination on the annotated dataset.
 
 Start with:
-    cd /Users/arniskc/Desktop/HackSMU/elephant-separator
+    cd elephant-separator
     source .venv/bin/activate
     uvicorn api_server:app --host 0.0.0.0 --port 8000 --reload
 """
@@ -15,6 +15,7 @@ from __future__ import annotations
 import base64
 import csv
 import io
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -42,6 +43,18 @@ SAMPLE_RATE = 44100
 N_FFT = 1024
 HOP_LENGTH = 256
 
+DEFAULT_CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3000",
+]
+
+
+def _cors_allowed_origins() -> list[str]:
+    configured = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+    return origins or DEFAULT_CORS_ALLOWED_ORIGINS
+
 app = FastAPI(
     title="Elephant Separator API",
     version="2.1.0",
@@ -50,11 +63,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=_cors_allowed_origins(),
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )

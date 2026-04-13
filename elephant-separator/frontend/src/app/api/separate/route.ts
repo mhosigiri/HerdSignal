@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const separatorBase =
-    process.env.NEXT_PUBLIC_SEPARATOR_API_URL ?? "http://localhost:8000";
+    process.env.SEPARATOR_API_URL ??
+    process.env.NEXT_PUBLIC_SEPARATOR_API_URL ??
+    "http://localhost:8000";
 
   let formData: FormData;
   try {
@@ -66,7 +68,7 @@ export async function POST(req: NextRequest) {
       {
         error:
           message.includes("ECONNREFUSED") || message.includes("fetch failed")
-            ? "Python separator service is not running. Start it with `uvicorn api_server:app --port 8000` from the project root."
+            ? "Separator service is unreachable. For local dev, start `uvicorn api_server:app --port 8000` from `elephant-separator/`. For deployment, set `SEPARATOR_API_URL` or `NEXT_PUBLIC_SEPARATOR_API_URL` to the Cloud Run backend URL."
             : message,
       },
       { status: 503 },

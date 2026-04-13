@@ -7,8 +7,8 @@ downloaded_data
 elephant-separator/.venv
 elephant-separator/frontend/node_modules
 elephant-separator/frontend/.next
+elephant-separator/frontend
 elephant-separator/results
 elephant-separator/experiments
 elephant-separator/__pycache__
 elephant-separator/src/__pycache__
-e;elephant-separator/frontend

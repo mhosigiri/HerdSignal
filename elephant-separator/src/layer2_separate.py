@@ -9,16 +9,21 @@ from typing import Any, Sequence
 
 import librosa
 import numpy as np
-import torch
 from scipy.ndimage import gaussian_filter
 from scipy.signal import istft
 from sklearn.decomposition import NMF
 from sklearn.exceptions import ConvergenceWarning
-from torch import nn
-from torch.nn import functional as F
 
-from .dataset import _list_audio_files
 from .layer1_preprocess import normalize_noise_type
+
+try:
+    import torch
+    from torch import nn
+    from torch.nn import functional as F
+except ImportError:  # pragma: no cover - optional runtime dependency
+    torch = None
+    nn = None
+    F = None
 
 
 ArrayLike = np.ndarray
@@ -32,10 +37,12 @@ def _safe_peak_normalize(audio: np.ndarray, peak_target: float = 0.95) -> np.nda
     return (samples * (peak_target / peak)).astype(np.float32, copy=False)
 
 
-class SpectrogramMaskNet(nn.Module):
+class SpectrogramMaskNet(nn.Module if nn is not None else object):
     """Lightweight spectrogram masking network for rapid iteration."""
 
     def __init__(self, base_channels: int = 16) -> None:
+        if nn is None:
+            raise ImportError("Deep-learning separator requires the optional torch dependencies.")
         super().__init__()
         hidden = max(8, base_channels)
         self.net = nn.Sequential(
@@ -55,7 +62,7 @@ class SpectrogramMaskNet(nn.Module):
             nn.Sigmoid(),
         )
 
-    def forward(self, magnitude: torch.Tensor) -> torch.Tensor:
+    def forward(self, magnitude: "torch.Tensor") -> "torch.Tensor":
         return self.net(magnitude)
 
 
@@ -303,6 +310,8 @@ class DeepLearningSeparator:
     training_history: dict[str, list[float]] = field(init=False, default_factory=lambda: {"train_loss": []})
 
     def __post_init__(self) -> None:
+        if torch is None or nn is None or F is None:
+            raise ImportError("DeepLearningSeparator requires the optional torch dependencies.")
         if self.device is None:
             if torch.cuda.is_available():
                 resolved_device = "cuda"
@@ -475,6 +484,8 @@ class DeepLearningSeparator:
         seed: int = 42,
     ) -> dict[str, list[float]]:
         """Load reference clips from disk and train the separator."""
+        from .dataset import _list_audio_files
+
         clean_audios = [
             librosa.load(str(path), sr=self.sample_rate, mono=True)[0].astype(np.float32, copy=False)
             for path in _list_audio_files(clean_dir)

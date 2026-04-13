@@ -39,7 +39,7 @@ In the future, we want to optimize our NMF pipeline to run on edge devices (like
 
 ## 💻 Quick Start (Docker)
 
-You can spin up the entire project (FastAPI backend + Next.js frontend) with a single command. 
+The repo-root Docker setup now builds the FastAPI backend only, which matches the Cloud Run deployment target.
 
 Ensure Docker Desktop is running, then execute:
 
@@ -49,8 +49,9 @@ chmod +x setup_and_run.sh
 ```
 
 Once it builds and starts, access the app:
-- **Web App:** http://localhost:3000
 - **API Docs:** http://localhost:8000/docs
+
+For the frontend, run the Next.js app from `elephant-separator/frontend` and point it at the deployed backend with `SEPARATOR_API_URL` or `NEXT_PUBLIC_SEPARATOR_API_URL`.
 
 *To stop the servers, just press `Ctrl+C` in your terminal.*
 

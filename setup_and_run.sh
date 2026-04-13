@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────
-# setup_and_run.sh — Build and run the Elephant Conservation Platform
+# setup_and_run.sh — Build and run the Elephant Separator API container
 #
 # Usage:
 #   chmod +x setup_and_run.sh
@@ -10,8 +10,8 @@
 # ─────────────────────────────────────────────────────────────────
 set -euo pipefail
 
-IMAGE_NAME="elephant-conservation"
-CONTAINER_NAME="elephant-app"
+IMAGE_NAME="elephant-separator-api"
+CONTAINER_NAME="elephant-separator-api"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -31,7 +31,7 @@ fi
 
 # ── Build ────────────────────────────────────────────────────────
 build_image() {
-    info "Building Docker image (Python 3.11.9 + Node 20)..."
+    info "Building backend Docker image (Python 3.11.9)..."
     docker build -t "$IMAGE_NAME" .
     ok "Docker image built: $IMAGE_NAME"
 }
@@ -46,8 +46,7 @@ run_container() {
 
     info "Starting container..."
     docker run --name "$CONTAINER_NAME" \
-        -p 8000:8000 \
-        -p 3000:3000 \
+        -p 8000:8080 \
         -it \
         "$IMAGE_NAME"
 }
@@ -55,7 +54,7 @@ run_container() {
 # ── Main ─────────────────────────────────────────────────────────
 echo ""
 echo "========================================="
-echo "  Elephant Conservation Platform"
+echo "  Elephant Separator API"
 echo "========================================="
 echo ""
 

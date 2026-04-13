@@ -35,6 +35,14 @@ cd frontend
 npm run dev
 ```
 
+## Deployment Notes
+
+- Backend deploy target: Cloud Run via the repo-root `Dockerfile`
+- Backend runtime manifest: `requirements.txt`
+- `pyproject.toml` base dependencies match the API runtime; research/training tools now live under the optional `ml` extra
+- Set `CORS_ALLOWED_ORIGINS=https://<your-pages-domain>` on the backend
+- Set `SEPARATOR_API_URL` or `NEXT_PUBLIC_SEPARATOR_API_URL` on the frontend to the Cloud Run backend URL
+
 ## Kept In Repo
 
 - production and evaluation code under `src/`
