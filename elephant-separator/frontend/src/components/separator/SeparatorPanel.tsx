@@ -279,6 +279,7 @@ export function SeparatorPanel() {
           imageUrl={originalSpectrogramUrl}
           active={false}
         />
+        <AudioPlayer title="Original recording" src={originalUrl} />
         <SpectrogramView
           label="Estimated elephant stem"
           intensity={status === "complete" ? 0.9 : 0.34}
@@ -289,10 +290,8 @@ export function SeparatorPanel() {
 
       {/* ── Audio players ── */}
       <div
-        className="two-col"
         style={{ marginBottom: "2.5rem", borderTop: "1px solid var(--c-600)" }}
       >
-        <AudioPlayer title="Original recording" src={originalUrl} />
         <AudioPlayer title="Processed output" src={processedUrl} />
       </div>
 

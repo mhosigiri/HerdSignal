@@ -101,6 +101,7 @@
 
   /* ── Typography ── */
   --font-sans: var(--font-display);
+  --font-serif: var(--font-serif);
   --font-mono: var(--font-mono-var);
 
   /* ── UI chrome ── */
@@ -293,27 +294,35 @@ button, input, select, textarea { font: inherit; }
 }
 
 .t-hero {
+  font-family: var(--font-serif), "Georgia", serif;
   font-size: clamp(2.6rem, 7vw, 5.5rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.04;
   color: var(--fg-primary);
 }
 
 .t-h2 {
+  font-family: var(--font-serif), "Georgia", serif;
   font-size: clamp(1.75rem, 4vw, 3rem);
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: 1.1;
   color: var(--fg-primary);
 }
 
 .t-h3 {
+  font-family: var(--font-serif), "Georgia", serif;
   font-size: clamp(1.1rem, 2.2vw, 1.6rem);
   font-weight: 600;
-  letter-spacing: -0.018em;
+  letter-spacing: -0.015em;
   line-height: 1.2;
   color: var(--fg-primary);
+}
+
+/* Serif display utility */
+.t-serif {
+  font-family: var(--font-serif), "Georgia", serif;
 }
 
 .t-body {
@@ -531,3 +540,79 @@ audio {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 canvas { outline: none !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GSAP REVEAL — initial states, GSAP overrides on scroll
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.gsap-reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  will-change: opacity, transform;
+}
+
+.gsap-reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  will-change: opacity, transform;
+}
+
+.gsap-reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  will-change: opacity, transform;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AUDIO GALLERY SLIDER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.gallery-track {
+  display: flex;
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+.gallery-slide {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.gallery-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--fg-ghost);
+  border: 1px solid var(--fg-faint);
+  color: var(--fg-secondary);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+.gallery-arrow:hover {
+  background: var(--accent-green-dim);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+.gallery-arrow:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.gallery-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg-ghost);
+  border: 1px solid var(--fg-ghost);
+  transition: background 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+.gallery-dot.active {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+  transform: scale(1.5);
+}

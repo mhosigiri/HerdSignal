@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
+import { IBM_Plex_Mono, Space_Grotesk, Playfair_Display } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 
 import { Providers } from "@/components/providers/Providers";
@@ -10,6 +10,13 @@ import "./globals.css";
 const display = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-display",
+});
+
+const serif = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
 });
 
 const mono = IBM_Plex_Mono({
@@ -33,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${display.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <Providers>
           <TopNav />

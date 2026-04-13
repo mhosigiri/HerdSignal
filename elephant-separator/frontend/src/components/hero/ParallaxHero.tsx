@@ -253,10 +253,11 @@ export function ParallaxHero() {
 
         <h1
           style={{
+            fontFamily: "var(--font-serif), Georgia, serif",
             fontSize: "clamp(2.2rem, 4.5vw, 4.5rem)",
             fontWeight: 700,
-            letterSpacing: "-0.03em",
-            lineHeight: 1.04,
+            letterSpacing: "-0.02em",
+            lineHeight: 1.06,
             color: "var(--hero-text-primary)",
             marginBottom: "1.25rem",
           }}
@@ -264,7 +265,7 @@ export function ParallaxHero() {
           Protecting elephants
           <br />
           with{" "}
-          <span style={{ color: "var(--accent-green)" }}>sound</span>.
+          <span style={{ color: "var(--accent-green)", fontStyle: "italic" }}>sound</span>.
         </h1>
 
         <p

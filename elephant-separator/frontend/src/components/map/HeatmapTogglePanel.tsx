@@ -5,7 +5,6 @@ import type { HeatmapMetric, HeatmapToggleOption } from "@/lib/map/types";
 const DEFAULT_OPTIONS: HeatmapToggleOption[] = [
   { label: "Population",          metric: "population" },
   { label: "Elephant type",       metric: "elephantType" },
-  { label: "Life expectancy",     metric: "lifeExpectancy" },
   { label: "Poaching rate",       metric: "poachingRate" },
   { label: "Conservation status", metric: "conservationStatus" },
   { label: "Population trend",    metric: "populationTrend" },

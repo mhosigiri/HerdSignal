@@ -6,6 +6,8 @@ import { SeparatorPanel } from "@/components/separator/SeparatorPanel";
 import { VoiceMode } from "@/components/voice/VoiceMode";
 import { getOverviewData } from "@/lib/api/overview";
 import { ParallaxHero } from "@/components/hero/ParallaxHero";
+import { AudioGallery } from "@/components/gallery/AudioGallery";
+import { GsapReveal } from "@/components/ui/GsapReveal";
 
 function toneMeta(tone: string): { color: string } {
   switch (tone) {
@@ -34,10 +36,13 @@ export default async function HomePage() {
         <div className="section-inner">
           <div className="section-rule" style={{ marginBottom: "5rem" }} />
 
-          <p className="t-eyebrow" style={{ marginBottom: "3.5rem" }}>
-            Conservation command
-          </p>
+          <GsapReveal>
+            <p className="t-eyebrow" style={{ marginBottom: "3.5rem" }}>
+              Conservation command
+            </p>
+          </GsapReveal>
 
+          <GsapReveal stagger delay={0.1}>
           <div
             style={{
               display: "flex",
@@ -94,130 +99,7 @@ export default async function HomePage() {
               );
             })}
           </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          FEATURE: ACOUSTIC SEPARATOR
-          Full-width text block, no box
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ background: "var(--bg-deep)", padding: "7rem 0" }}>
-        <div className="section-inner">
-          <div className="section-rule" style={{ marginBottom: "5rem" }} />
-
-          <p className="t-eyebrow" style={{ marginBottom: "1.25rem" }}>
-            Acoustic tool
-          </p>
-          <h2
-            className="t-h2"
-            style={{ marginBottom: "1.5rem", maxWidth: "18ch" }}
-          >
-            Noise Separator.
-          </h2>
-          <p
-            className="t-body"
-            style={{ maxWidth: "46ch", marginBottom: "2.75rem" }}
-          >
-            ML-powered source separation isolates elephant infrasound from
-            vehicle noise, rain, and ambient interference — with sub-second
-            latency on any field recording.
-          </p>
-          <a
-            href="#separator"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.9375rem",
-              fontWeight: 500,
-              color: "var(--accent-green)",
-              letterSpacing: "-0.01em",
-              transition: "opacity 0.15s ease",
-            }}
-          >
-            Open separator &nbsp;→
-          </a>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          FEATURE: VOICE MODE
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ background: "var(--bg-deep)", padding: "7rem 0" }}>
-        <div className="section-inner">
-          <div className="section-rule" style={{ marginBottom: "5rem" }} />
-
-          <p className="t-eyebrow" style={{ marginBottom: "1.25rem" }}>
-            Voice interface
-          </p>
-          <h2
-            className="t-h2"
-            style={{ marginBottom: "1.5rem", maxWidth: "18ch" }}
-          >
-            Voice Mode.
-          </h2>
-          <p
-            className="t-body"
-            style={{ maxWidth: "46ch", marginBottom: "2.75rem" }}
-          >
-            Ask conservation questions and receive spoken AI responses.
-            Hands-free exploration designed for researchers in the field.
-          </p>
-          <a
-            href="#voice"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.9375rem",
-              fontWeight: 500,
-              color: "var(--accent-green)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Try voice mode &nbsp;→
-          </a>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
-          FEATURE: MAP
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section style={{ background: "var(--bg-deep)", padding: "7rem 0" }}>
-        <div className="section-inner">
-          <div className="section-rule" style={{ marginBottom: "5rem" }} />
-
-          <p className="t-eyebrow" style={{ marginBottom: "1.25rem" }}>
-            Geographic intelligence
-          </p>
-          <h2
-            className="t-h2"
-            style={{ marginBottom: "1.5rem", maxWidth: "18ch" }}
-          >
-            Range &amp; Habitat Map.
-          </h2>
-          <p
-            className="t-body"
-            style={{ maxWidth: "46ch", marginBottom: "2.75rem" }}
-          >
-            Population density, habitat fragmentation, and incident hotspots
-            rendered on an interactive basemap. Click any country for regional
-            metrics and field audio.
-          </p>
-          <a
-            href="#map"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.4rem",
-              fontSize: "0.9375rem",
-              fontWeight: 500,
-              color: "var(--accent-green)",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Explore the map &nbsp;→
-          </a>
+          </GsapReveal>
         </div>
       </section>
 
@@ -228,15 +110,17 @@ export default async function HomePage() {
         <div className="section-inner">
           <div className="section-rule" style={{ marginBottom: "5rem" }} />
 
-          <p className="t-eyebrow" style={{ marginBottom: "1.25rem" }}>
-            Conservation data
-          </p>
-          <h2
-            className="t-h2"
-            style={{ marginBottom: "5rem", maxWidth: "24ch" }}
-          >
-            Field intelligence at a glance.
-          </h2>
+          <GsapReveal>
+            <p className="t-eyebrow" style={{ marginBottom: "1.25rem" }}>
+              Conservation data
+            </p>
+            <h2
+              className="t-h2"
+              style={{ marginBottom: "5rem", maxWidth: "24ch" }}
+            >
+              Field intelligence at a glance.
+            </h2>
+          </GsapReveal>
 
           {/* Vertical stack — no grid, no boxes */}
           <div className="chart-grid">
@@ -335,6 +219,20 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── Fade ── */}
+      <div
+        className="section-fade"
+        style={{
+          height: "100px",
+          background: "linear-gradient(to bottom, var(--bg-surface), var(--bg-deep))",
+        }}
+      />
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          AUDIO GALLERY — bespoke spectrogram showcase
+      ═══════════════════════════════════════════════════════════════════ */}
+      <AudioGallery />
+
       {/* ═══════════════════════════════════════════════════════════════════
           FOOTER — minimal, seamless
       ═══════════════════════════════════════════════════════════════════ */}
@@ -381,6 +279,7 @@ export default async function HomePage() {
                 { href: "#separator",  label: "Separator"  },
                 { href: "#voice",      label: "Voice"      },
                 { href: "#map",        label: "Map"        },
+                { href: "#gallery",    label: "Gallery"    },
               ].map(({ href, label }) => (
                 <a
                   key={href}
