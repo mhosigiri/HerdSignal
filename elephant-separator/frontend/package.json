@@ -25,6 +25,7 @@
     "gsap": "^3.14.2",
     "howler": "^2.2.4",
     "i18n-iso-countries": "^7.14.0",
+    "jszip": "^3.10.1",
     "leaflet": "^1.9.4",
     "maplibre-gl": "^5.22.0",
     "next": "16.2.3",

@@ -42,6 +42,14 @@ npm run dev
 - `pyproject.toml` base dependencies match the API runtime; research/training tools now live under the optional `ml` extra
 - Set `CORS_ALLOWED_ORIGINS=https://<your-pages-domain>` on the backend
 - Set `SEPARATOR_API_URL` or `NEXT_PUBLIC_SEPARATOR_API_URL` on the frontend to the Cloud Run backend URL
+- For separator archive uploads and on-demand zip downloads, set `SUPABASE_SERVICE_ROLE_KEY` on the frontend server runtime
+- The frontend server runtime also needs `SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_URL`
+- Optional private bucket overrides:
+  `SUPABASE_SEPARATOR_INPUT_BUCKET`,
+  `SUPABASE_SEPARATOR_OUTPUT_BUCKET`,
+  `SUPABASE_SEPARATOR_SPECTROGRAM_BUCKET`,
+  `SUPABASE_SEPARATOR_ANNOTATION_BUCKET`
+- `Download output files` zips the archived processed call audio, both spectrograms, and the generated annotation CSV only when the user clicks it
 
 ## Kept In Repo
 

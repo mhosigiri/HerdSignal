@@ -14,6 +14,11 @@ interface AudioStore {
   annotationCsv: string | null;
   model: string | null;
   device: string | null;
+  separationRunId: string | null;
+  downloadToken: string | null;
+  archiveFileName: string | null;
+  archiveReady: boolean;
+  archiveError: string | null;
   progress: number;
   status: SeparationStatus;
   note: string;
@@ -27,6 +32,11 @@ interface AudioStore {
     annotationCsv: string | null;
     model: string | null;
     device: string | null;
+    separationRunId: string | null;
+    downloadToken: string | null;
+    archiveFileName: string | null;
+    archiveReady: boolean;
+    archiveError: string | null;
     note: string;
   }) => void;
   setError: (note: string) => void;
@@ -43,6 +53,11 @@ const initialState = {
   annotationCsv: null,
   model: null,
   device: null,
+  separationRunId: null,
+  downloadToken: null,
+  archiveFileName: null,
+  archiveReady: false,
+  archiveError: null,
   progress: 0,
   status: "idle" as SeparationStatus,
   note: "Upload a field recording to begin.",
@@ -61,6 +76,11 @@ export const useAudioStore = create<AudioStore>((set) => ({
       annotationCsv: null,
       model: null,
       device: null,
+      separationRunId: null,
+      downloadToken: null,
+      archiveFileName: null,
+      archiveReady: false,
+      archiveError: null,
       progress: 0,
       status: "ready",
       note: "Local preview ready. Start the separator to run the local NMF baseline.",
@@ -79,6 +99,11 @@ export const useAudioStore = create<AudioStore>((set) => ({
     annotationCsv,
     model,
     device,
+    separationRunId,
+    downloadToken,
+    archiveFileName,
+    archiveReady,
+    archiveError,
     note,
   }) =>
     set({
@@ -89,6 +114,11 @@ export const useAudioStore = create<AudioStore>((set) => ({
       annotationCsv,
       model,
       device,
+      separationRunId,
+      downloadToken,
+      archiveFileName,
+      archiveReady,
+      archiveError,
       progress: 100,
       status: "complete",
       note,

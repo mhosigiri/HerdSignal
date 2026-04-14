@@ -43,6 +43,11 @@ type SeparationResponse = {
   model?: string | null;
   device?: string | null;
   note?: string | null;
+  separationRunId?: string | null;
+  downloadToken?: string | null;
+  archiveFileName?: string | null;
+  archiveReady?: boolean;
+  archiveError?: string | null;
   error?: string;
 };
 
@@ -58,6 +63,11 @@ export function SeparatorPanel() {
     annotationCsv,
     model,
     device,
+    separationRunId,
+    downloadToken,
+    archiveFileName,
+    archiveReady,
+    archiveError,
     progress,
     reset,
     setComplete,
@@ -70,6 +80,7 @@ export function SeparatorPanel() {
   const processedRef = useRef<string | null>(null);
   const [selectedNoiseType, setSelectedNoiseType] = useState<NoiseType>("vehicle");
   const [autoDetectedNoiseType, setAutoDetectedNoiseType] = useState<NoiseType | null>(null);
+  const [isPreparingDownload, setIsPreparingDownload] = useState(false);
 
   useEffect(() => {
     processedRef.current = processedUrl;
@@ -136,12 +147,52 @@ export function SeparatorPanel() {
         annotationCsv: payload.annotationCsv ?? null,
         model: payload.model ?? null,
         device: payload.device ?? null,
+        separationRunId: payload.separationRunId ?? null,
+        downloadToken: payload.downloadToken ?? null,
+        archiveFileName: payload.archiveFileName ?? null,
+        archiveReady: payload.archiveReady ?? false,
+        archiveError: payload.archiveError ?? null,
         note:
           payload.note ??
           "Separation complete. Processed audio, spectrograms, and annotations are ready.",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown separation error.");
+    }
+  };
+
+  const downloadOutputFiles = async () => {
+    if (!separationRunId || !downloadToken) {
+      setError("Archived output files are not available for this run.");
+      return;
+    }
+
+    try {
+      setIsPreparingDownload(true);
+      const res = await fetch("/api/separate/download", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ runId: separationRunId, downloadToken }),
+      });
+
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(payload.error ?? "Unable to prepare output archive.");
+      }
+
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = archiveFileName ?? `${fileName ?? "separator-output"}__output-files.zip`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Unable to prepare output archive.");
+    } finally {
+      setIsPreparingDownload(false);
     }
   };
 
@@ -226,6 +277,14 @@ export function SeparatorPanel() {
         >
           {isProcessing ? "Separating…" : "Start separation"}
         </button>
+        <button
+          type="button"
+          onClick={downloadOutputFiles}
+          disabled={!archiveReady || isPreparingDownload}
+          className="btn btn-ghost"
+        >
+          {isPreparingDownload ? "Preparing zip…" : "Download output files"}
+        </button>
         <button type="button" onClick={handleReset} className="btn btn-ghost">
           Reset
         </button>
@@ -236,6 +295,11 @@ export function SeparatorPanel() {
         <div style={{ marginBottom: "2rem" }}>
           <p className="t-eyebrow" style={{ marginBottom: "0.5rem" }}>Status</p>
           <p className="t-body">{note}</p>
+          {archiveError && (
+            <p className="t-small" style={{ marginTop: "0.75rem", color: "var(--c-gold)" }}>
+              Archive status: {archiveError}
+            </p>
+          )}
           <div style={{ marginTop: "1rem" }}>
             <SeparationProgress progress={progress} />
           </div>

@@ -22,4 +22,9 @@ export interface SeparationJob {
   device?: string;
   model?: string;
   note?: string;
+  separationRunId?: string | null;
+  downloadToken?: string | null;
+  archiveFileName?: string | null;
+  archiveReady?: boolean;
+  archiveError?: string | null;
 }
