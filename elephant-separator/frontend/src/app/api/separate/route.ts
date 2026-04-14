@@ -7,7 +7,7 @@ import {
 } from "@/lib/supabase/server";
 import type { GeneratedAnnotation } from "@/types/audio";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   const separatorBase =
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       : "vehicle";
 
   const startedAt = new Date().toISOString();
-  const sourceBytes = Buffer.from(await uploadedFile.arrayBuffer());
+  const sourceBytes = new Uint8Array(await uploadedFile.arrayBuffer());
   const upstreamForm = new FormData();
   upstreamForm.append(
     "file",

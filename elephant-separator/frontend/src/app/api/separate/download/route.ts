@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildSeparationDownloadBundle } from "@/lib/separator/archive";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   let body: { runId?: string; downloadToken?: string };
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       downloadToken,
     });
 
-    return new NextResponse(new Uint8Array(zipBuffer), {
+    return new NextResponse(zipBuffer, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",

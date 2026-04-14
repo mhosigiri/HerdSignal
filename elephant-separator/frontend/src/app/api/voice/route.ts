@@ -1,13 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import OpenAI from "openai";
-
-const apiKey = process.env.GROQ_API_KEY ?? "";
-
-const groq = new OpenAI({
-  baseURL: "https://api.groq.com/openai/v1",
-  apiKey,
-});
+export const runtime = "edge";
 
 const SYSTEM_PROMPT =
   "You are an expert elephant conservation analyst. Keep responses concise, practical, and grounded in elephant habitats, threats, field acoustics, and conservation operations.";
@@ -26,6 +19,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Prompt is required." }, { status: 400 });
   }
 
+  const apiKey = process.env.GROQ_API_KEY ?? "";
   if (!apiKey) {
     return NextResponse.json(
       {
@@ -38,20 +32,35 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 320,
-      temperature: 0.5,
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: prompt },
+        ],
+        max_tokens: 320,
+        temperature: 0.5,
+      }),
     });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => response.statusText);
+      throw new Error(`Groq voice error ${response.status}: ${errText}`);
+    }
+
+    const completion = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string | null } }>;
+    };
 
     return NextResponse.json({
       transcript: prompt,
-      response:
-        completion.choices[0]?.message?.content ?? "No response generated.",
+      response: completion.choices?.[0]?.message?.content ?? "No response generated.",
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Voice request failed.";

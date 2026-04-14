@@ -1,6 +1,3 @@
-import { createHash, randomUUID } from "node:crypto";
-import { extname } from "node:path";
-
 import JSZip from "jszip";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -13,6 +10,7 @@ const DEFAULT_ANNOTATION_BUCKET = "separator-annotations";
 
 const CACHE_CONTROL_SECONDS = "3600";
 const ensuredBuckets = new Set<string>();
+const textEncoder = new TextEncoder();
 
 type SeparatorBackendPayload = {
   file_name: string;
@@ -52,17 +50,7 @@ type ArchiveResult = {
 
 type SeparationRunRow = {
   id: string;
-  recording_id: string;
-  output_recording_id: string | null;
-  model_name: string;
   metrics: Record<string, unknown> | null;
-};
-
-type AudioRecordingRow = {
-  id: string;
-  filename: string;
-  storage_bucket: string | null;
-  storage_path: string | null;
 };
 
 function getBucketNames(): SeparatorArchiveBuckets {
@@ -76,13 +64,17 @@ function getBucketNames(): SeparatorArchiveBuckets {
   };
 }
 
-function sha256(value: string): string {
-  return createHash("sha256").update(value).digest("hex");
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", textEncoder.encode(value));
+  return Array.from(new Uint8Array(digest), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
 }
 
 function stripExtension(fileName: string): string {
-  const extension = extname(fileName);
-  return extension ? fileName.slice(0, -extension.length) : fileName;
+  const trimmed = fileName.trim();
+  const dotIndex = trimmed.lastIndexOf(".");
+  return dotIndex > 0 ? trimmed.slice(0, dotIndex) : trimmed;
 }
 
 function sanitizeStem(fileName: string): string {
@@ -95,7 +87,9 @@ function sanitizeStem(fileName: string): string {
 }
 
 function normalizeExtension(fileName: string, fallback = ".bin"): string {
-  const extension = extname(fileName).trim().toLowerCase();
+  const trimmed = fileName.trim();
+  const dotIndex = trimmed.lastIndexOf(".");
+  const extension = dotIndex >= 0 ? trimmed.slice(dotIndex).toLowerCase() : "";
   return extension || fallback;
 }
 
@@ -105,8 +99,16 @@ function confidenceBucket(score: number): "low" | "medium" | "high" {
   return "low";
 }
 
-function decodeBase64(base64Value: string): Buffer {
-  return Buffer.from(base64Value, "base64");
+function decodeBase64(base64Value: string): Uint8Array {
+  const normalized = base64Value.includes(",")
+    ? base64Value.slice(base64Value.indexOf(",") + 1)
+    : base64Value;
+  const binary = atob(normalized);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index);
+  }
+  return bytes;
 }
 
 function archivePrefix(runId: string): string {
@@ -143,9 +145,10 @@ async function ensureBuckets(
 async function uploadAsset(
   supabase: SupabaseClient,
   asset: ArchivedAssetRef,
-  body: Buffer,
+  body: Uint8Array,
 ): Promise<void> {
-  const { error } = await supabase.storage.from(asset.bucket).upload(asset.path, body, {
+  const payload = new Blob([toArrayBuffer(body)], { type: asset.contentType });
+  const { error } = await supabase.storage.from(asset.bucket).upload(asset.path, payload, {
     contentType: asset.contentType,
     cacheControl: CACHE_CONTROL_SECONDS,
     upsert: false,
@@ -156,16 +159,23 @@ async function uploadAsset(
   }
 }
 
-async function fetchAssetBuffer(
+function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
+  return bytes.buffer.slice(
+    bytes.byteOffset,
+    bytes.byteOffset + bytes.byteLength,
+  ) as ArrayBuffer;
+}
+
+async function fetchAssetBytes(
   supabase: SupabaseClient,
   bucket: string,
   path: string,
-): Promise<Buffer> {
+): Promise<Uint8Array> {
   const { data, error } = await supabase.storage.from(bucket).download(path);
   if (error || !data) {
     throw new Error(`Download failed for ${bucket}/${path}: ${error?.message ?? "missing data"}`);
   }
-  return Buffer.from(await data.arrayBuffer());
+  return new Uint8Array(await data.arrayBuffer());
 }
 
 function buildAssetRefs(sourceFileName: string, runId: string): {
@@ -227,7 +237,7 @@ export async function archiveSeparationOutputs(params: {
   supabase: SupabaseClient;
   sourceFileName: string;
   sourceMimeType: string | null;
-  sourceBytes: Buffer;
+  sourceBytes: Uint8Array;
   selectedNoiseType: string;
   payload: SeparatorBackendPayload;
   startedAt: string;
@@ -242,8 +252,8 @@ export async function archiveSeparationOutputs(params: {
     startedAt,
   } = params;
 
-  const runId = randomUUID();
-  const downloadToken = randomUUID();
+  const runId = crypto.randomUUID();
+  const downloadToken = crypto.randomUUID();
   const finishedAt = new Date().toISOString();
   const assetRefs = buildAssetRefs(sourceFileName, runId);
   const buckets = Object.values(getBucketNames());
@@ -256,11 +266,7 @@ export async function archiveSeparationOutputs(params: {
   };
 
   await uploadAsset(supabase, originalAudioAsset, sourceBytes);
-  await uploadAsset(
-    supabase,
-    assetRefs.processedAudio,
-    decodeBase64(payload.audio_base64),
-  );
+  await uploadAsset(supabase, assetRefs.processedAudio, decodeBase64(payload.audio_base64));
   await uploadAsset(
     supabase,
     assetRefs.originalSpectrogram,
@@ -271,11 +277,7 @@ export async function archiveSeparationOutputs(params: {
     assetRefs.processedSpectrogram,
     decodeBase64(payload.processed_spectrogram_base64),
   );
-  await uploadAsset(
-    supabase,
-    assetRefs.annotationCsv,
-    Buffer.from(payload.annotation_csv, "utf-8"),
-  );
+  await uploadAsset(supabase, assetRefs.annotationCsv, textEncoder.encode(payload.annotation_csv));
 
   const originalMetadata = {
     origin: "user_upload",
@@ -301,7 +303,7 @@ export async function archiveSeparationOutputs(params: {
       metadata: originalMetadata,
     })
     .select("id")
-    .single();
+    .single<{ id: string }>();
 
   if (originalRecordingError || !originalRecording) {
     throw new Error(
@@ -333,7 +335,7 @@ export async function archiveSeparationOutputs(params: {
       metadata: outputMetadata,
     })
     .select("id")
-    .single();
+    .single<{ id: string }>();
 
   if (outputRecordingError || !outputRecording) {
     throw new Error(
@@ -352,7 +354,7 @@ export async function archiveSeparationOutputs(params: {
     },
     annotation_count: payload.annotations.length,
     archive_file_name: assetRefs.archiveFileName,
-    download_token_hash: sha256(downloadToken),
+    download_token_hash: await sha256Hex(downloadToken),
   };
 
   const { data: separationRun, error: separationRunError } = await supabase
@@ -376,7 +378,7 @@ export async function archiveSeparationOutputs(params: {
       },
     })
     .select("id")
-    .single();
+    .single<{ id: string }>();
 
   if (separationRunError || !separationRun) {
     throw new Error(
@@ -417,10 +419,7 @@ export async function archiveSeparationOutputs(params: {
   };
 }
 
-function assertAssetRef(
-  value: unknown,
-  label: string,
-): ArchivedAssetRef {
+function assertAssetRef(value: unknown, label: string): ArchivedAssetRef {
   const candidate = value as Partial<ArchivedAssetRef> | undefined;
   if (
     !candidate ||
@@ -475,12 +474,12 @@ export async function buildSeparationDownloadBundle(params: {
   supabase: SupabaseClient;
   runId: string;
   downloadToken: string;
-}): Promise<{ archiveFileName: string; zipBuffer: Buffer }> {
+}): Promise<{ archiveFileName: string; zipBuffer: ArrayBuffer }> {
   const { supabase, runId, downloadToken } = params;
 
   const { data: separationRun, error: separationRunError } = await supabase
     .from("separation_runs")
-    .select("id, recording_id, output_recording_id, model_name, metrics")
+    .select("id, metrics")
     .eq("id", runId)
     .single<SeparationRunRow>();
 
@@ -491,33 +490,25 @@ export async function buildSeparationDownloadBundle(params: {
   }
 
   const assetMap = extractAssetMap(separationRun.metrics);
-  if (assetMap.downloadTokenHash !== sha256(downloadToken)) {
+  if (assetMap.downloadTokenHash !== (await sha256Hex(downloadToken))) {
     throw new Error("Invalid download token.");
   }
 
   const zip = new JSZip();
   const [processedAudio, originalSpectrogram, processedSpectrogram, annotationCsv] =
     await Promise.all([
-      fetchAssetBuffer(
-        supabase,
-        assetMap.processedAudio.bucket,
-        assetMap.processedAudio.path,
-      ),
-      fetchAssetBuffer(
+      fetchAssetBytes(supabase, assetMap.processedAudio.bucket, assetMap.processedAudio.path),
+      fetchAssetBytes(
         supabase,
         assetMap.originalSpectrogram.bucket,
         assetMap.originalSpectrogram.path,
       ),
-      fetchAssetBuffer(
+      fetchAssetBytes(
         supabase,
         assetMap.processedSpectrogram.bucket,
         assetMap.processedSpectrogram.path,
       ),
-      fetchAssetBuffer(
-        supabase,
-        assetMap.annotationCsv.bucket,
-        assetMap.annotationCsv.path,
-      ),
+      fetchAssetBytes(supabase, assetMap.annotationCsv.bucket, assetMap.annotationCsv.path),
     ]);
 
   zip.file(`calls/${assetMap.processedAudio.fileName}`, processedAudio);
@@ -526,7 +517,7 @@ export async function buildSeparationDownloadBundle(params: {
   zip.file(`annotations/${assetMap.annotationCsv.fileName}`, annotationCsv);
 
   const zipBuffer = await zip.generateAsync({
-    type: "nodebuffer",
+    type: "arraybuffer",
     compression: "DEFLATE",
     compressionOptions: { level: 6 },
   });

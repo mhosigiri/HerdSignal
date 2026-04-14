@@ -2,40 +2,81 @@ import { NextRequest, NextResponse } from "next/server";
 
 const GROQ_TTS_URL = "https://api.groq.com/openai/v1/audio/speech";
 const DEFAULT_VOICE = "daniel";
+const RIFF_HEADER = "RIFF";
+const WAVE_HEADER = "WAVE";
+const FMT_CHUNK = "fmt ";
+const DATA_CHUNK = "data";
+const asciiDecoder = new TextDecoder("ascii");
+
+export const runtime = "edge";
 
 /* Orpheus max 200 chars per request — split on sentence boundaries */
 function chunkText(text: string, maxLen = 195): string[] {
   const sentences = text.match(/[^.!?]+[.!?]+\s?|[^.!?]+$/g) ?? [text];
   const chunks: string[] = [];
   let current = "";
-  for (const s of sentences) {
-    if ((current + s).length > maxLen) {
+  for (const sentence of sentences) {
+    if ((current + sentence).length > maxLen) {
       if (current.trim()) chunks.push(current.trim());
-      current = s;
+      current = sentence;
     } else {
-      current += s;
+      current += sentence;
     }
   }
   if (current.trim()) chunks.push(current.trim());
   return chunks.length ? chunks : [text.slice(0, maxLen)];
 }
 
-function extractWavParts(wav: Buffer) {
-  if (wav.toString("ascii", 0, 4) !== "RIFF" || wav.toString("ascii", 8, 12) !== "WAVE") {
+function readAscii(bytes: Uint8Array, start: number, end: number): string {
+  return asciiDecoder.decode(bytes.subarray(start, end));
+}
+
+function equalBytes(left: Uint8Array, right: Uint8Array): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
+}
+
+function concatBytes(parts: Uint8Array[]): Uint8Array {
+  const totalLength = parts.reduce((sum, part) => sum + part.length, 0);
+  const merged = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const part of parts) {
+    merged.set(part, offset);
+    offset += part.length;
+  }
+  return merged;
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let index = 0; index < bytes.length; index += chunkSize) {
+    const chunk = bytes.subarray(index, index + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
+}
+
+function extractWavParts(wav: Uint8Array) {
+  if (readAscii(wav, 0, 4) !== RIFF_HEADER || readAscii(wav, 8, 12) !== WAVE_HEADER) {
     throw new Error("Groq TTS returned an invalid WAV container.");
   }
 
-  let fmtChunk: Buffer | null = null;
-  const dataParts: Buffer[] = [];
+  const view = new DataView(wav.buffer, wav.byteOffset, wav.byteLength);
+  let fmtChunk: Uint8Array | null = null;
+  const dataParts: Uint8Array[] = [];
   let offset = 12;
 
   while (offset + 8 <= wav.length) {
-    const chunkId = wav.toString("ascii", offset, offset + 4);
-    const chunkSize = wav.readUInt32LE(offset + 4);
+    const chunkId = readAscii(wav, offset, offset + 4);
+    const chunkSize = view.getUint32(offset + 4, true);
     const chunkStart = offset + 8;
     let chunkEnd = chunkStart + chunkSize;
 
-    if (chunkId === "data" && chunkEnd > wav.length) {
+    if (chunkId === DATA_CHUNK && chunkEnd > wav.length) {
       chunkEnd = wav.length;
     }
 
@@ -44,10 +85,10 @@ function extractWavParts(wav: Buffer) {
     }
 
     const chunkData = wav.slice(chunkStart, chunkEnd);
-    if (chunkId === "fmt ") {
-      fmtChunk = Buffer.from(chunkData);
-    } else if (chunkId === "data") {
-      dataParts.push(Buffer.from(chunkData));
+    if (chunkId === FMT_CHUNK) {
+      fmtChunk = chunkData.slice();
+    } else if (chunkId === DATA_CHUNK) {
+      dataParts.push(chunkData.slice());
     }
 
     offset = chunkEnd + (chunkSize % 2);
@@ -63,47 +104,47 @@ function extractWavParts(wav: Buffer) {
 
   return {
     fmtChunk,
-    data: Buffer.concat(dataParts),
+    data: concatBytes(dataParts),
   };
 }
 
-function buildMergedWav(wavBuffers: Buffer[]) {
+function buildMergedWav(wavBuffers: Uint8Array[]): Uint8Array {
   const firstParts = extractWavParts(wavBuffers[0]);
   const fmtChunk = firstParts.fmtChunk;
   const dataParts = [firstParts.data];
 
   for (const wav of wavBuffers.slice(1)) {
     const parts = extractWavParts(wav);
-    if (!parts.fmtChunk.equals(fmtChunk)) {
+    if (!equalBytes(parts.fmtChunk, fmtChunk)) {
       throw new Error("Groq TTS returned incompatible audio formats across chunks.");
     }
     dataParts.push(parts.data);
   }
 
-  const mergedData = Buffer.concat(dataParts);
+  const mergedData = concatBytes(dataParts);
   const fmtPadding = fmtChunk.length % 2;
   const riffSize = 4 + (8 + fmtChunk.length + fmtPadding) + (8 + mergedData.length);
 
-  const header = Buffer.alloc(12);
-  header.write("RIFF", 0, "ascii");
-  header.writeUInt32LE(riffSize, 4);
-  header.write("WAVE", 8, "ascii");
+  const header = new Uint8Array(12);
+  header.set([82, 73, 70, 70], 0);
+  new DataView(header.buffer).setUint32(4, riffSize, true);
+  header.set([87, 65, 86, 69], 8);
 
-  const fmtHeader = Buffer.alloc(8);
-  fmtHeader.write("fmt ", 0, "ascii");
-  fmtHeader.writeUInt32LE(fmtChunk.length, 4);
+  const fmtHeader = new Uint8Array(8);
+  fmtHeader.set([102, 109, 116, 32], 0);
+  new DataView(fmtHeader.buffer).setUint32(4, fmtChunk.length, true);
 
-  const dataHeader = Buffer.alloc(8);
-  dataHeader.write("data", 0, "ascii");
-  dataHeader.writeUInt32LE(mergedData.length, 4);
+  const dataHeader = new Uint8Array(8);
+  dataHeader.set([100, 97, 116, 97], 0);
+  new DataView(dataHeader.buffer).setUint32(4, mergedData.length, true);
 
-  const parts = [header, fmtHeader, fmtChunk];
+  const parts: Uint8Array[] = [header, fmtHeader, fmtChunk];
   if (fmtPadding) {
-    parts.push(Buffer.alloc(1));
+    parts.push(new Uint8Array(1));
   }
   parts.push(dataHeader, mergedData);
 
-  return Buffer.concat(parts);
+  return concatBytes(parts);
 }
 
 export async function POST(req: NextRequest) {
@@ -127,9 +168,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const chunks = chunkText(text);
-
-    /* Hit the Groq REST endpoint directly — no SDK wrapping */
-    const wavBuffers: Buffer[] = await Promise.all(
+    const wavBuffers = await Promise.all(
       chunks.map(async (chunk) => {
         const res = await fetch(GROQ_TTS_URL, {
           method: "POST",
@@ -150,15 +189,14 @@ export async function POST(req: NextRequest) {
           throw new Error(`Groq TTS error ${res.status}: ${errText}`);
         }
 
-        const ab = await res.arrayBuffer();
-        return Buffer.from(ab);
+        return new Uint8Array(await res.arrayBuffer());
       }),
     );
 
     const merged = buildMergedWav(wavBuffers);
 
     return NextResponse.json({
-      audio: `data:audio/wav;base64,${merged.toString("base64")}`,
+      audio: `data:audio/wav;base64,${bytesToBase64(merged)}`,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "TTS request failed.";
