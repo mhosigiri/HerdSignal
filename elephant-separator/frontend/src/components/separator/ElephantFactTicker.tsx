@@ -55,6 +55,8 @@ export function ElephantFactTicker() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const currentRef = useRef(current);
   currentRef.current = current;
+  const mountedRef = useRef(true);
+  const shineDelayRef = useRef<gsap.core.Tween | null>(null);
 
   // ── Load facts from Supabase ─────────────────────────────────────────────
   useEffect(() => {
@@ -68,11 +70,16 @@ export function ElephantFactTicker() {
         setCurrent(pickRandom(contents));
       }
     })();
+    return () => {
+      mountedRef.current = false;
+      if (shineDelayRef.current) shineDelayRef.current.kill();
+    };
   }, []);
 
-  // ── GSAP shine animation on text ─────────────────────────────────────────
+  // ── GSAP shine animation on text — loops with a 2 s gap ──────────────────
   const runShine = () => {
-    if (!shineRef.current) return;
+    if (!shineRef.current || !mountedRef.current) return;
+    if (shineDelayRef.current) shineDelayRef.current.kill();
     gsap.fromTo(
       shineRef.current,
       { x: "-110%", opacity: 1 },
@@ -82,6 +89,10 @@ export function ElephantFactTicker() {
         duration: 1.4,
         ease: "power2.inOut",
         clearProps: "all",
+        onComplete: () => {
+          if (!mountedRef.current) return;
+          shineDelayRef.current = gsap.delayedCall(2, runShine);
+        },
       }
     );
   };
@@ -140,28 +151,18 @@ export function ElephantFactTicker() {
       ref={containerRef}
       style={{
         marginTop: "1.25rem",
-        padding: "0.75rem 1rem",
-        background: "var(--c-raise)",
-        border: "1px solid rgba(82,168,99,0.15)",
-        borderRadius: "0.625rem",
-        display: "flex",
-        alignItems: "flex-start",
-        gap: "0.625rem",
         opacity: 0, // starts invisible; GSAP fades in
       }}
     >
-      {/* Left: animated dot + label */}
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.35rem", paddingTop: "0.1rem", flexShrink: 0 }}>
+      {/* Top: animated dot + label */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", marginBottom: "0.4rem" }}>
         <PulseDot />
         <span
           className="t-eyebrow"
           style={{
-            fontSize: "0.55rem",
+            fontSize: "0.6rem",
             letterSpacing: "0.1em",
             color: "var(--accent-green)",
-            writingMode: "vertical-rl",
-            textOrientation: "mixed",
-            transform: "rotate(180deg)",
             lineHeight: 1,
             opacity: 0.7,
           }}
@@ -170,8 +171,8 @@ export function ElephantFactTicker() {
         </span>
       </div>
 
-      {/* Right: fact text with shine overlay */}
-      <div style={{ position: "relative", overflow: "hidden", flex: 1 }}>
+      {/* Fact text with shine overlay */}
+      <div style={{ position: "relative", overflow: "hidden" }}>
         <span
           ref={textRef}
           className="t-small"
