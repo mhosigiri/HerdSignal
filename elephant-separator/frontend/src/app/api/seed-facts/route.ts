@@ -6,6 +6,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 const FACTS: Array<[number, string, string]> = [
   [1,"Size, Weight & Physical Dimensions","African bush elephants are the largest land animals on Earth, weighing up to 14,000 pounds (6,350 kg)."],
   [2,"Size, Weight & Physical Dimensions","The largest elephant ever recorded stood 3.96 meters (13 feet) tall at the shoulder and weighed a staggering 10,400 kg (22,928 lbs)."],
