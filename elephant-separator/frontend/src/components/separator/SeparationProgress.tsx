@@ -1,6 +1,15 @@
 "use client";
 
-export function SeparationProgress({ progress }: { progress: number }) {
+import { ElephantFactTicker } from "./ElephantFactTicker";
+
+type SeparationStatus = "idle" | "ready" | "processing" | "complete" | "error";
+
+interface SeparationProgressProps {
+  progress: number;
+  status?: SeparationStatus;
+}
+
+export function SeparationProgress({ progress, status = "processing" }: SeparationProgressProps) {
   return (
     <div style={{ paddingTop: "0.5rem" }}>
       <div
@@ -13,6 +22,9 @@ export function SeparationProgress({ progress }: { progress: number }) {
       <div className="progress-track">
         <div className="progress-fill" style={{ width: `${progress}%` }} />
       </div>
+
+      {/* Elephant fact ticker — visible only while NMF separation is running */}
+      {status === "processing" && <ElephantFactTicker />}
     </div>
   );
 }

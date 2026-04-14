@@ -301,7 +301,7 @@ export function SeparatorPanel() {
             </p>
           )}
           <div style={{ marginTop: "1rem" }}>
-            <SeparationProgress progress={progress} />
+            <SeparationProgress progress={progress} status={status} />
           </div>
           <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "1rem" }}>
             {model && (
